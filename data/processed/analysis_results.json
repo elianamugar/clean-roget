@@ -1,0 +1,204 @@
+{
+  "total_tokens": 127384,
+  "matched_terms": 45398,
+  "unique_matched_terms": 5416,
+  "total_semantic_matches": 43724,
+  "token_coverage": 0.7137155426260333,
+  "unique_term_rate": 0.04251711360924449,
+  "semantic_density": 0.34324561954405575,
+  "unique_matched_heads": 935,
+  "top_terms": [
+    [
+      "sister",
+      291
+    ],
+    [
+      "lady",
+      281
+    ],
+    [
+      "know",
+      251
+    ],
+    [
+      "never",
+      228
+    ],
+    [
+      "think",
+      226
+    ],
+    [
+      "time",
+      221
+    ],
+    [
+      "soon",
+      215
+    ],
+    [
+      "little",
+      190
+    ],
+    [
+      "every",
+      185
+    ],
+    [
+      "nothing",
+      184
+    ],
+    [
+      "make",
+      178
+    ],
+    [
+      "without",
+      177
+    ],
+    [
+      "say",
+      174
+    ],
+    [
+      "good",
+      172
+    ],
+    [
+      "friend",
+      168
+    ]
+  ],
+  "top_heads": [
+    [
+      "Temple",
+      802
+    ],
+    [
+      "Belief",
+      379
+    ],
+    [
+      "Capability of producing",
+      377
+    ],
+    [
+      "Love",
+      331
+    ],
+    [
+      "Amusement",
+      331
+    ],
+    [
+      "Greatness",
+      323
+    ],
+    [
+      "Capability of giving",
+      305
+    ],
+    [
+      "Smallness",
+      305
+    ],
+    [
+      "Desire",
+      291
+    ],
+    [
+      "Repute",
+      243
+    ]
+  ],
+  "pos_counts": [
+    [
+      "noun",
+      21335
+    ],
+    [
+      "adjective",
+      9563
+    ],
+    [
+      "verb",
+      9382
+    ],
+    [
+      "adverb",
+      3121
+    ],
+    [
+      "phrase",
+      323
+    ]
+  ],
+  "class_counts": [
+    [
+      "CLASS I",
+      10040
+    ],
+    [
+      "CLASS V",
+      9794
+    ],
+    [
+      "CLASS VI",
+      9048
+    ],
+    [
+      "CLASS IV",
+      7494
+    ],
+    [
+      "CLASS II",
+      4478
+    ],
+    [
+      "CLASS III",
+      2870
+    ]
+  ],
+  "top_weighted_heads": [
+    [
+      "Belief",
+      2691.2770263430502
+    ],
+    [
+      "Capability of producing",
+      2597.0006092223543
+    ],
+    [
+      "Love",
+      2392.1110448670947
+    ],
+    [
+      "Greatness",
+      2257.500839967504
+    ],
+    [
+      "Smallness",
+      2182.552717767693
+    ],
+    [
+      "Amusement",
+      2085.1140817336736
+    ],
+    [
+      "Desire",
+      2050.188640900369
+    ],
+    [
+      "Mankind",
+      2019.509750260202
+    ],
+    [
+      "Capability of giving",
+      1942.9689650569403
+    ],
+    [
+      "Relations of kindred.",
+      1798.5339536490394
+    ]
+  ]
+}

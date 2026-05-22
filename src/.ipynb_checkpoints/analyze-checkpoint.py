@@ -1,11 +1,14 @@
 import argparse
 import json
 import re
+import math
 from collections import Counter
 from pathlib import Path
 from text_cleaning import clean_gutenberg_text
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+
+OUTPUT_PATH = Path("data/processed/analysis_results.json")
 
 CUSTOM_STOP_WORDS = {
     "mr",
@@ -64,6 +67,26 @@ def generate_ngrams(tokens, min_n=1, max_n=3):
 
     return ngrams
 
+def build_head_document_frequency(lookup):
+    """
+    Count how many unique terms map to each semantic head.
+    Broad heads get higher counts and lower weights.
+    """
+    head_terms = {}
+
+    for term, entries in lookup.items():
+        for entry in entries:
+            head = entry["head_name"]
+
+            if head not in head_terms:
+                head_terms[head] = set()
+
+            head_terms[head].add(term)
+
+    return {
+        head: len(terms)
+        for head, terms in head_terms.items()
+    }
 
 def analyze_text(text, lookup):
     tokens = tokenize(text)
@@ -99,6 +122,22 @@ def analyze_text(text, lookup):
             seen.add(key)
             deduped_matches.append((term, entry))
 
+    head_df = build_head_document_frequency(lookup)
+    total_terms_in_lookup = len(lookup)
+    
+    weighted_head_scores = Counter()
+    
+    for term, entry in deduped_matches:
+        head = entry["head_name"]
+    
+        # Inverse semantic frequency:
+        # common/broad heads receive smaller weights.
+        weight = math.log(
+            (1 + total_terms_in_lookup) / (1 + head_df.get(head, 1))
+        ) + 1
+    
+        weighted_head_scores[head] += weight
+
     head_counts = Counter(entry["head_name"] for term, entry in deduped_matches)
     pos_counts = Counter(entry["pos"] for term, entry in deduped_matches)
     class_counts = Counter(entry["class"] for term, entry in deduped_matches)
@@ -132,8 +171,7 @@ def analyze_text(text, lookup):
         "top_heads": head_counts.most_common(10),
         "pos_counts": pos_counts.most_common(),
         "class_counts": class_counts.most_common(),
-        "matched_terms_raw": matched_terms,
-        "matched_entries_raw": matched_entries,
+        "top_weighted_heads": weighted_head_scores.most_common(10),
     }
 
 def debug_head(matched_terms, matched_entries, target_head):
@@ -178,6 +216,10 @@ def print_results(results):
     for cls, count in results["class_counts"]:
         print(f"- {cls}: {count}")
 
+    print("\nTop weighted semantic heads:")
+    for head, score in results["top_weighted_heads"]:
+        print(f"- {head}: {score:.2f}")
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -195,8 +237,18 @@ def main():
     lookup = build_lookup(roget_terms)
 
     results = analyze_text(text, lookup)
+    OUTPUT_PATH = Path("data/processed/analysis_results.json")
+
+    with OUTPUT_PATH.open("w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
 
     print_results(results)
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    with OUTPUT_PATH.open("w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
+    
+    print(f"\nSaved analysis results to {OUTPUT_PATH}")
 
 
 if __name__ == "__main__":
