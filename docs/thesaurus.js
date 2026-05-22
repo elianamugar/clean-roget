@@ -54,52 +54,67 @@ function render(items) {
   const grouped = groupTerms(items);
 
   for (const [classLabel, divisions] of Object.entries(grouped)) {
-    const classEl = document.createElement("section");
-    classEl.className = "thesaurus-class";
+    const classDetails = document.createElement("details");
+    classDetails.className = "thesaurus-class";
+    classDetails.open = false;
 
-    const classTitle = document.createElement("h2");
-    classTitle.textContent = classLabel;
-    classEl.appendChild(classTitle);
+    const classSummary = document.createElement("summary");
+    classSummary.textContent = classLabel;
+    classDetails.appendChild(classSummary);
 
     for (const [divisionLabel, sections] of Object.entries(divisions)) {
+      let divisionParent = classDetails;
+
       if (divisionLabel !== "No Division") {
-        const divisionTitle = document.createElement("h3");
-        divisionTitle.className = "division-title";
-        divisionTitle.textContent = divisionLabel;
-        classEl.appendChild(divisionTitle);
+        const divisionDetails = document.createElement("details");
+        divisionDetails.className = "thesaurus-division";
+
+        const divisionSummary = document.createElement("summary");
+        divisionSummary.textContent = divisionLabel;
+        divisionDetails.appendChild(divisionSummary);
+
+        classDetails.appendChild(divisionDetails);
+        divisionParent = divisionDetails;
       }
 
       for (const [sectionLabel, subsections] of Object.entries(sections)) {
-        const sectionEl = document.createElement("section");
-        sectionEl.className = "thesaurus-section";
+        const sectionDetails = document.createElement("details");
+        sectionDetails.className = "thesaurus-section";
 
-        const sectionTitle = document.createElement("h3");
-        sectionTitle.textContent = sectionLabel;
-        sectionEl.appendChild(sectionTitle);
+        const sectionSummary = document.createElement("summary");
+        sectionSummary.textContent = sectionLabel;
+        sectionDetails.appendChild(sectionSummary);
 
         for (const [subsectionLabel, subsubsections] of Object.entries(subsections)) {
-          const subsectionEl = document.createElement("section");
-          subsectionEl.className = "thesaurus-subsection";
+          const subsectionDetails = document.createElement("details");
+          subsectionDetails.className = "thesaurus-subsection";
 
-          const subsectionTitle = document.createElement("h4");
-          subsectionTitle.textContent = subsectionLabel;
-          subsectionEl.appendChild(subsectionTitle);
+          const subsectionSummary = document.createElement("summary");
+          subsectionSummary.textContent = subsectionLabel;
+          subsectionDetails.appendChild(subsectionSummary);
 
           for (const [subsubsectionLabel, heads] of Object.entries(subsubsections)) {
+            let subsubsectionParent = subsectionDetails;
+
             if (subsubsectionLabel !== "Uncategorized") {
-              const subsubTitle = document.createElement("h5");
-              subsubTitle.className = "subsubsection-title";
-              subsubTitle.textContent = subsubsectionLabel;
-              subsectionEl.appendChild(subsubTitle);
+              const subsubsectionDetails = document.createElement("details");
+              subsubsectionDetails.className = "thesaurus-subsubsection";
+
+              const subsubsectionSummary = document.createElement("summary");
+              subsubsectionSummary.textContent = subsubsectionLabel;
+              subsubsectionDetails.appendChild(subsubsectionSummary);
+
+              subsectionDetails.appendChild(subsubsectionDetails);
+              subsubsectionParent = subsubsectionDetails;
             }
 
             for (const [headLabel, posGroups] of Object.entries(heads)) {
-              const details = document.createElement("details");
-              details.className = "thesaurus-head";
+              const headDetails = document.createElement("details");
+              headDetails.className = "thesaurus-head";
 
-              const summary = document.createElement("summary");
-              summary.textContent = headLabel;
-              details.appendChild(summary);
+              const headSummary = document.createElement("summary");
+              headSummary.textContent = headLabel;
+              headDetails.appendChild(headSummary);
 
               for (const [pos, termList] of Object.entries(posGroups)) {
                 const posBlock = document.createElement("div");
@@ -119,21 +134,21 @@ function render(items) {
 
                 posBlock.appendChild(posTitle);
                 posBlock.appendChild(termsP);
-                details.appendChild(posBlock);
+                headDetails.appendChild(posBlock);
               }
 
-              subsectionEl.appendChild(details);
+              subsubsectionParent.appendChild(headDetails);
             }
           }
 
-          sectionEl.appendChild(subsectionEl);
+          sectionDetails.appendChild(subsectionDetails);
         }
 
-        classEl.appendChild(sectionEl);
+        divisionParent.appendChild(sectionDetails);
       }
     }
 
-    container.appendChild(classEl);
+    container.appendChild(classDetails);
   }
 }
 

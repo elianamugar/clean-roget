@@ -333,3 +333,41 @@ th {
 .site-footer a:hover {
   opacity: 0.7;
 }
+
+.thesaurus-class,
+.thesaurus-division,
+.thesaurus-section,
+.thesaurus-subsection,
+.thesaurus-subsubsection,
+.thesaurus-head {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin: 0.75rem 0;
+  padding: 0.75rem 1rem;
+}
+
+.thesaurus-division,
+.thesaurus-section,
+.thesaurus-subsection,
+.thesaurus-subsubsection,
+.thesaurus-head {
+  margin-left: 1rem;
+}
+
+.thesaurus-class > summary,
+.thesaurus-division > summary,
+.thesaurus-section > summary,
+.thesaurus-subsection > summary,
+.thesaurus-subsubsection > summary,
+.thesaurus-head > summary {
+  cursor: pointer;
+  font-weight: bold;
+  color: var(--accent-soft);
+}
+
+.pos-block {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
