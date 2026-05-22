@@ -1,11 +1,13 @@
 const input = document.getElementById("text-input");
 const button = document.getElementById("analyze-button");
 const results = document.getElementById("results");
+const posFilter = document.getElementById("pos-filter");
 
 let terms = [];
 let lookup = {};
 let headsChart = null;
 let classesChart = null;
+let radarChart = null;
 
 const STOP_WORDS = new Set([
   "the", "to", "of", "and", "a", "an", "in", "on", "for", "with",
@@ -32,6 +34,12 @@ async function loadTerms() {
   }
 }
 
+function chartTextColor() {
+  return document.documentElement.dataset.theme === "dark"
+    ? "#f4eadc"
+    : "#241f1a";
+}
+
 function renderBarChart(canvasId, title, rows, existingChart) {
   const canvas = document.getElementById(canvasId);
 
@@ -42,37 +50,57 @@ function renderBarChart(canvasId, title, rows, existingChart) {
   }
 
   return new Chart(canvas, {
-    type: "bar",
-    data: {
-      labels: rows.map(([label]) => label),
-      datasets: [
-        {
-          label: title,
-          data: rows.map(([, value]) => value)
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          display: false
-        },
-        title: {
-          display: true,
-          text: title
+  type: "bar",
+  data: {
+    labels: rows.map(([label]) => label),
+    datasets: [
+      {
+        label: title,
+        data: rows.map(([, value]) => value)
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        display: false,
+        labels: {
+          color: chartTextColor()
         }
       },
-      scales: {
-        x: {
-          ticks: {
-            maxRotation: 45,
-            minRotation: 30
-          }
+      title: {
+        display: true,
+        text: title,
+        color: chartTextColor()
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: chartTextColor(),
+          maxRotation: 45,
+          minRotation: 30
+        },
+        grid: {
+          color: document.documentElement.dataset.theme === "dark"
+            ? "#4d4035"
+            : "#dfd3c3"
+        }
+      },
+      y: {
+        ticks: {
+          color: chartTextColor()
+        },
+        grid: {
+          color: document.documentElement.dataset.theme === "dark"
+            ? "#4d4035"
+            : "#dfd3c3"
         }
       }
     }
-  });
+  }
+});
 }
 
 function renderCharts(data) {
@@ -168,33 +196,35 @@ function analyze(text) {
     }
   }
 
-  const headCounts = count(deduped.map(item => item.entry.head_name)).slice(0, 10);
-  const posCounts = count(deduped.map(item => item.entry.pos));
+  const selectedPOS = posFilter.value;
+
+const filteredDeduped =
+  selectedPOS === "all"
+    ? deduped
+    : deduped.filter(item => item.entry.pos === selectedPOS);
+
+  const headCounts = count(filteredDeduped.map(item => item.entry.head_name)).slice(0, 10);
+  const posCounts = count(filteredDeduped.map(item => item.entry.pos));
+  const classCounts = count(filteredDeduped.map(item => item.entry.class_name || item.entry.class));
   const divisionCounts = count(
-  deduped
-    .map(item => item.entry.division_name)
-    .filter(Boolean)
+  filteredDeduped.map(item => item.entry.division_name).filter(Boolean)
 );
 
-    const sectionCounts = count(
-    deduped
-        .map(item => item.entry.section_name)
-        .filter(Boolean)
-    );
+  const sectionCounts = count(
+  filteredDeduped.map(item => item.entry.section_name).filter(Boolean)
+);
 
-    const subsectionCounts = count(
-    deduped
-        .map(item => item.entry.subsection)
-        .filter(Boolean)
-    );
+  const subsectionCounts = count(
+  filteredDeduped.map(item => item.entry.subsection).filter(Boolean)
+);
 
-    const subsubsectionCounts = count(
-    deduped
-        .map(item => item.entry.subsubsection)
-        .filter(Boolean)
-    );
-  const classCounts = count(deduped.map(item => item.entry.class_name || item.entry.class));
-  const termCounts = count(matchedTerms).slice(0, 15);
+  const subsubsectionCounts = count(
+  filteredDeduped.map(item => item.entry.subsubsection).filter(Boolean)
+);
+
+  const filteredTerms = filteredDeduped.map(item => item.term);
+
+  const termCounts = count(filteredTerms).slice(0, 15);
 
   return {
     topDivisions: divisionCounts.slice(0, 10),
@@ -207,7 +237,7 @@ function analyze(text) {
     tokenCoverage: contentTokens.length
       ? contentTokens.filter(token => lookup[token]).length / contentTokens.length
       : 0,
-    semanticDensity: tokens.length ? deduped.length / tokens.length : 0,
+    semanticDensity: tokens.length ? filteredDeduped.length / tokens.length : 0,
     topTerms: termCounts,
     topHeads: headCounts,
     posCounts,
@@ -260,6 +290,10 @@ button.addEventListener("click", () => {
   const analysis = analyze(text);
   renderResults(analysis);
   renderCharts(analysis);
+  renderRadarChart(analysis);
+  document.querySelectorAll(".analysis-chart").forEach(section => {
+  section.style.display = "block";
+});
   latestFullAnalysis = analysis;
   downloadButton.style.display = "inline-block";
 });
@@ -352,3 +386,69 @@ downloadButton.addEventListener("click", () => {
 
   URL.revokeObjectURL(url);
 });
+
+function renderRadarChart(data) {
+  const rows = data.topHeads.slice(0, 8);
+  const labels = rows.map(([label]) => label);
+  const values = rows.map(([, value]) => value);
+
+  const canvas = document.getElementById("radar-chart");
+
+  if (!canvas) return;
+
+  if (radarChart) {
+    radarChart.destroy();
+  }
+
+  radarChart = new Chart(canvas, {
+    type: "radar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Semantic Fingerprint",
+          data: values
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: {
+            color: chartTextColor()
+          }
+        },
+        title: {
+          display: true,
+          text: "Semantic Fingerprint Radar",
+          color: chartTextColor()
+        }
+      },
+      scales: {
+        r: {
+          beginAtZero: true,
+          ticks: {
+            color: chartTextColor(),
+            backdropColor: "transparent"
+          },
+          grid: {
+            color:
+              document.documentElement.dataset.theme === "dark"
+                ? "#4d4035"
+                : "#dfd3c3"
+          },
+          angleLines: {
+            color:
+              document.documentElement.dataset.theme === "dark"
+                ? "#4d4035"
+                : "#dfd3c3"
+          },
+          pointLabels: {
+            color: chartTextColor()
+          }
+        }
+      }
+    }
+  });
+}

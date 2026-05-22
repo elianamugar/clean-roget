@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="favicon.jpg" />
+    <link rel="apple-touch-icon" href="favicon.jpg" />
+  <meta charset="UTF-8" />
+  <title>About | Clean Roget</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <main>
+    <a href="index.html">← Back to Home</a>
+    <button id="theme-toggle" class="theme-toggle">Toggle dark mode</button>
+
+    <h1>About Clean Roget</h1>
+
+    <section class="result-card">
+      <h2>Who was Roget?</h2>
+      <p>
+        <a href="https://en.wikipedia.org/wiki/Peter_Mark_Roget">Peter Mark Roget</a> (1779 – 1869) was a British physician, scientist, and lexicographer best known for creating
+        <em>Roget’s Thesaurus</em>. Rather than organizing words alphabetically, Roget organized language
+        by ideas, concepts, and relationships between meanings.
+      </p>
+    </section>
+
+    <section class="result-card">
+      <h2>What is Roget’s Thesaurus?</h2>
+      <p>
+        Created in 1805, <em>Roget’s Thesaurus of English Words and Phrases</em> is a conceptual thesaurus: a structured
+        map of English vocabulary organized by semantic categories. Its hierarchy includes classes,
+        divisions, sections, subsections, semantic heads, parts of speech, and terms.
+      </p>
+
+      <p>
+        Clean Roget works from the public-domain Project Gutenberg source:
+        <a href="https://www.gutenberg.org/files/10681/10681-h/10681-h.htm" target="_blank" rel="noopener">
+          Roget’s Thesaurus on Project Gutenberg
+        </a>.
+      </p>
+    </section>
+
+    <section class="result-card">
+      <h2>Why this project?</h2>
+      <p>
+        It all started when I joined the Evaluating Variations in Languages Lab (informally known as EViL, haha) at Duquesne University during my sophomore year of college
+        under <a href="https://en.wikipedia.org/wiki/Patrick_Juola">Dr. Patrick Juola</a>, who's most known for using forensic stylometry to prove J. K. Rowling wrote
+        the novel <em>The Cuckoo's Calling</em> under the pseudonym "Robert Gailbraith". Our lab group delved into
+        adjectives and adverbs, with the theory that these were the most subjective parts of speeches an author can use,
+        therefore, there might be some stylistic patterns to uncover which would be ground-breaking in the field of authorship attribution
+        and stylometry analysis. Dr. Juola introduced me to <em>Roget's Thesaurus</em> and if I could clean it up, then it would be useful for our adjective categorizer
+        since it would be a guidebook on categorizing adjectives (and adverbs) semantically. When I set out on this project in 2022, Python's BeautifulSoup library
+        could not clean up this mess of a page. It was so messy that I was able to use it for a grad class thesis project (which you can see <a href="https://github.com/elianamugar/AdjectiveTyping">here</a>).
+        Now, in 2026, tools have updated, but it was still difficult to clean! I still had to make my own parser, but I was determined to finally clean up Roget's Thesaurus
+        because I believe it can be a valuable starting point for developing more tools for stylometric analysis and authorship attribution studies.
+      </p>
+      <p>
+        Besides all that, I'm a nerd for literature. I enjoy reading as a pastime and I also love to analyze patterns (or lack thereof) among texts.
+      </p>
+      <p>
+        Clean Roget began as an attempt to turn a historically important but difficult-to-use semantic
+        reference work into a clean, machine-readable ontology. The goal is not only to preserve Roget’s
+        structure, but to make it usable for computational humanities, literary analysis, semantic browsing,
+        and exploratory text comparison.
+      </p>
+
+      <p>
+        Instead of asking only what words appear in a text, this project asks what kinds of ideas,
+        concepts, and semantic categories shape that text.
+      </p>
+    </section>
+
+    <section class="result-card">
+      <h2>How it was built</h2>
+      <p>
+        The original source contains dense historical formatting, inconsistent structure, archaic symbols,
+        and long semantic blocks. Clean Roget parses the source text, reconstructs Roget’s hierarchy, cleans
+        the semantic entries, extracts term-level data, and exports the result as machine-readable JSON and CSV.
+      </p>
+
+      <p>
+        The site then uses that cleaned ontology to power browser-based tools for semantic analysis,
+        text comparison, corpus comparison, semantic clustering, and network visualization.
+      </p>
+    </section>
+
+    <section class="result-card">
+      <h2>What can you do with it?</h2>
+      <ul>
+        <li>Browse Roget’s hierarchy in a cleaner, readable format.</li>
+        <li>Download machine-readable Roget datasets.</li>
+        <li>Analyze a pasted text or uploaded <code>.txt</code> file.</li>
+        <li>Compare two texts or authors by semantic profile.</li>
+        <li>Compare corpora made from multiple text files.</li>
+        <li>Explore semantic heads as an interactive network.</li>
+        <li>Generate CSV reports of semantic category counts.</li>
+      </ul>
+    </section>
+
+    <section class="result-card">
+      <h2>Best used with Project Gutenberg texts</h2>
+      <p>
+        Clean Roget works best with plain-text literary works, essays, plays, speeches, and other long-form
+        texts. Public-domain texts from
+        <a href="https://www.gutenberg.org/" target="_blank" rel="noopener">
+          Project Gutenberg
+        </a>
+        are especially good inputs because they are free, accessible, and usually available as <code>.txt</code>
+        files.
+      </p>
+    </section>
+
+    <section class="result-card">
+      <h2>Limitations and future work</h2>
+      <p>
+        Roget’s ontology is historically rich, but it was not designed as a modern NLP model. The original source is ugly, ugly, ugly! 
+        Some semantic categories are broad, archaic, or unevenly distributed, which can make literary texts appear more
+        similar than they intuitively feel. Some categories are so general, I don't even know what they mean (yet). Clean Roget is therefore both a tool and an ongoing experiment in
+        ontology-based text analysis.
+      </p>
+
+      <p>
+        Future work may include semantic stop-head filtering, stronger weighting methods, dimensionality
+        reduction, dendrograms, corpus-level IDF, and hybrid approaches that combine Roget’s ontology with
+        modern embeddings.
+      </p>
+    </section>
+  </main>
+
+  <script src="theme.js"></script>
+</body>
+</html>

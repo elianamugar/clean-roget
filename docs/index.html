@@ -2,10 +2,13 @@
 <html lang="en">
 <link rel="stylesheet" href="style.css" />
 <head>
+  <link rel="icon" type="image/png" href="favicon.jpg" />
+    <link rel="apple-touch-icon" href="favicon.jpg" />
   <meta charset="UTF-8" />
   <title>Clean Roget</title>
 </head>
 <main>
+  <button id="theme-toggle" class="theme-toggle">Toggle dark mode</button>
 <body>
   <h1>Clean Roget</h1>
 
@@ -38,6 +41,18 @@
       <p>Upload multiple files for two authors or collections and compare aggregate semantic fingerprints.</p>
     </a>
 
+    <a class="card" href="cluster.html">
+      <span class="badge">Cluster</span>
+      <h3>Semantic Clustering</h3>
+      <p>Upload multiple texts and group them by Roget-based semantic similarity.</p>
+    </a>
+
+    <a class="card" href="network.html">
+      <span class="badge">Graph</span>
+      <h3>Semantic Network</h3>
+      <p>Explore Roget semantic heads as an interactive network connected by shared terms.</p>
+    </a>
+
     <a class="card" href="data/roget_terms.json">
       <span class="badge">JSON</span>
       <h3>Roget Terms JSON</h3>
@@ -55,14 +70,14 @@
       <h3>Clean Semantic Blocks</h3>
       <p>Structured semantic blocks preserving Roget’s original class, section, and head organization before term-level expansion.</p>
     </a>
+
+    <a class="card" href="about.html">
+      <span class="badge">About</span>
+      <h3>About Clean Roget</h3>
+      <p>Learn about Roget’s Thesaurus, the source text, and the computational humanities goals behind this project.</p>
+    </a>
   </div>
-
-  <h2>Coming Soon</h2>
-
-  <p>
-    A browser-based semantic analysis tool where users can paste or upload text
-    and compare semantic profiles across texts or authors.
-  </p>
 </main>
+<script src="theme.js"></script>
 </body>
 </html>

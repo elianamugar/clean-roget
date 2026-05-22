@@ -34,6 +34,12 @@ async function loadTerms() {
   }
 }
 
+function chartTextColor() {
+  return document.documentElement.dataset.theme === "dark"
+    ? "#f4eadc"
+    : "#241f1a";
+}
+
 function tokenize(text) {
   return text.toLowerCase().match(/\b[a-zA-Z'-]+\b/g) || [];
 }
@@ -160,45 +166,118 @@ function renderBarChart(a, b, nameA, nameB) {
   if (headsChart) headsChart.destroy();
 
   headsChart = new Chart(document.getElementById("corpus-heads-chart"), {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        { label: nameA, data: valuesA },
-        { label: nameB, data: valuesB }
-      ]
+  type: "bar",
+  data: {
+    labels,
+    datasets: [
+      { label: nameA, data: valuesA },
+      { label: nameB, data: valuesB }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: {
+          color: chartTextColor()
+        }
+      },
+      title: {
+        display: true,
+        text: "Corpus Semantic Head Comparison",
+        color: chartTextColor()
+      }
     },
-    options: {
-      responsive: true,
-      plugins: { title: { display: true, text: "Corpus Semantic Head Comparison" } }
+    scales: {
+      x: {
+        ticks: {
+          color: chartTextColor()
+        },
+        grid: {
+          color:
+            document.documentElement.dataset.theme === "dark"
+              ? "#4d4035"
+              : "#dfd3c3"
+        }
+      },
+      y: {
+        ticks: {
+          color: chartTextColor()
+        },
+        grid: {
+          color:
+            document.documentElement.dataset.theme === "dark"
+              ? "#4d4035"
+              : "#dfd3c3"
+        }
+      }
     }
-  });
+  }
+});
 }
 
-function renderRadarChart(a, b, nameA, nameB) {
-  const labels = [...new Set([
-    ...a.topHeads.map(([label]) => label),
-    ...b.topHeads.map(([label]) => label)
-  ])].slice(0, 8);
+function renderRadarChart(data) {
+  const rows = data.topHeads.slice(0, 8);
+  const labels = rows.map(([label]) => label);
+  const values = rows.map(([, value]) => value);
 
-  const valuesA = labels.map(label => a.headCounts.get(label) || 0);
-  const valuesB = labels.map(label => b.headCounts.get(label) || 0);
+  const canvas = document.getElementById("radar-chart");
 
-  if (radarChart) radarChart.destroy();
+  if (!canvas) return;
 
-  radarChart = new Chart(document.getElementById("corpus-radar-chart"), {
+  if (radarChart) {
+    radarChart.destroy();
+  }
+
+  radarChart = new Chart(canvas, {
     type: "radar",
     data: {
       labels,
       datasets: [
-        { label: nameA, data: valuesA },
-        { label: nameB, data: valuesB }
+        {
+          label: "Semantic Fingerprint",
+          data: values
+        }
       ]
     },
     options: {
       responsive: true,
-      plugins: { title: { display: true, text: "Corpus Semantic Fingerprint" } },
-      scales: { r: { beginAtZero: true } }
+      plugins: {
+        legend: {
+          labels: {
+            color: chartTextColor()
+          }
+        },
+        title: {
+          display: true,
+          text: "Semantic Fingerprint Radar",
+          color: chartTextColor()
+        }
+      },
+      scales: {
+        r: {
+          beginAtZero: true,
+          ticks: {
+            color: chartTextColor(),
+            backdropColor: "transparent"
+          },
+          grid: {
+            color:
+              document.documentElement.dataset.theme === "dark"
+                ? "#4d4035"
+                : "#dfd3c3"
+          },
+          angleLines: {
+            color:
+              document.documentElement.dataset.theme === "dark"
+                ? "#4d4035"
+                : "#dfd3c3"
+          },
+          pointLabels: {
+            color: chartTextColor()
+          }
+        }
+      }
     }
   });
 }

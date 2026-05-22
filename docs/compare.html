@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/png" href="favicon.jpg" />
+    <link rel="apple-touch-icon" href="favicon.jpg" />
   <meta charset="UTF-8" />
   <title>Compare Texts | Clean Roget</title>
   <link rel="stylesheet" href="style.css" />
@@ -8,6 +10,7 @@
 <body>
   <main>
     <a href="index.html">← Back to Home</a>
+    <button id="theme-toggle" class="theme-toggle">Toggle dark mode</button>
 
     <h1>Compare Texts or Authors</h1>
 
@@ -44,20 +47,25 @@
 
     <section id="comparison-results"></section>
 
-    <section class="chart-card">
+    <section class="chart-card" style="display:none;">
         <canvas id="comparison-heads-chart"></canvas>
     </section>
 
-    <section class="chart-card">
+    <section class="chart-card" style="display:none;">
         <canvas id="comparison-classes-chart"></canvas>
     </section>
 
-    <section class="chart-card">
+    <section class="chart-card" style="display:none;">
         <canvas id="semantic-radar-chart"></canvas>
+    </section>
+
+    <section class="chart-card comparison-chart" style="display:none;">
+        <canvas id="distinctive-chart"></canvas>
     </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="compare.js"></script>
+  <script src="theme.js"></script>
 </body>
 </html>

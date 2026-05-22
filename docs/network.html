@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="favicon.jpg" />
+    <link rel="apple-touch-icon" href="favicon.jpg" />
+  <meta charset="UTF-8" />
+  <title>Semantic Network | Clean Roget</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <script
+    type="text/javascript"
+    src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"
+  ></script>
+</head>
+<body>
+  <main>
+    <a href="index.html">← Back to Home</a>
+    <button id="theme-toggle" class="theme-toggle">Toggle dark mode</button>
+
+    <h1>Semantic Network</h1>
+
+    <p>
+      Explore Roget semantic heads as a network. Heads are connected when they share terms.
+    </p>
+    <label for="head-search">Search semantic head</label>
+        <input
+        id="head-search"
+        type="text"
+        placeholder="e.g. Love, Belief, Motion..."
+        />
+
+    <label for="class-filter">Filter by class</label>
+    <select id="class-filter">
+      <option value="all">All classes</option>
+    </select>
+
+    <label for="edge-filter">Minimum shared terms</label>
+    <input id="edge-filter" type="range" min="1" max="10" value="2" />
+    <span id="edge-filter-value">2</span>
+
+    <button id="export-graph-button">Export Graph Image</button>
+
+    <div id="network"></div>
+
+    <section class="result-card">
+      <h2>Selected Head</h2>
+      <div id="node-details">
+        <p>Click a node to see details.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="network.js"></script>
+  <script src="theme.js"></script>
+</body>
+</html>

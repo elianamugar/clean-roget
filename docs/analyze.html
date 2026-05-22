@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/png" href="favicon.jpg" />
+    <link rel="apple-touch-icon" href="favicon.jpg" />
   <meta charset="UTF-8" />
   <title>Analyze Text | Clean Roget</title>
   <link rel="stylesheet" href="style.css" />
@@ -8,6 +10,7 @@
 <body>
   <main>
     <a href="index.html">← Back to Home</a>
+    <button id="theme-toggle" class="theme-toggle">Toggle dark mode</button>
 
     <h1>Analyze Text</h1>
 
@@ -20,21 +23,34 @@
 
     <textarea id="text-input" placeholder="Paste text here..."></textarea>
 
+    <label for="pos-filter">Part-of-speech filter</label>
+<select id="pos-filter">
+  <option value="all">All parts of speech</option>
+  <option value="noun">Nouns</option>
+  <option value="verb">Verbs</option>
+  <option value="adjective">Adjectives</option>
+  <option value="adverb">Adverbs</option>
+</select>
     <button id="analyze-button">Analyze Text</button>
     <button id="download-button" style="display:none;">
     Download Full Analysis CSV
     </button>
     <section id="results"></section>
-    <section class="chart-card">
+    <section class="chart-card analysis-chart" style="display:none;">
         <canvas id="heads-chart"></canvas>
     </section>
 
-    <section class="chart-card">
+    <section class="chart-card analysis-chart" style="display:none;">
         <canvas id="classes-chart"></canvas>
+    </section>
+
+    <section class="chart-card analysis-chart" style="display:none;">
+        <canvas id="radar-chart"></canvas>
     </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="analyze.js"></script>
+  <script src="theme.js"></script>
 </body>
 </html>

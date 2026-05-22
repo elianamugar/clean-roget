@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="favicon.jpg" />
+    <link rel="apple-touch-icon" href="favicon.jpg" />
+  <meta charset="UTF-8" />
+  <title>Semantic Clustering | Clean Roget</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <a href="index.html">← Back to Home</a>
+    <button id="theme-toggle" class="theme-toggle">Toggle dark mode</button>
+
+    <h1>Semantic Clustering</h1>
+
+    <p>
+      Upload multiple .txt files to cluster texts by Roget-based semantic similarity.
+    </p>
+
+    <label for="files">Upload texts</label>
+    <input id="files" type="file" accept=".txt,text/plain" multiple />
+
+    <label for="threshold">Similarity threshold</label>
+    <input id="threshold" type="range" min="50" max="99" value="85" />
+    <span id="threshold-value">85%</span>
+
+    <button id="cluster-button">Cluster Texts</button>
+
+    <section id="cluster-results"></section>
+  </main>
+
+  <script src="cluster.js"></script>
+  <script src="theme.js"></script>
+</body>
+</html>
