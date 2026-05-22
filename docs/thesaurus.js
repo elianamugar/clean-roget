@@ -59,7 +59,7 @@ function render(items) {
     classDetails.open = false;
 
     const classSummary = document.createElement("summary");
-    classSummary.textContent = classLabel;
+    classSummary.textContent = classLabel.replace(/\.\:/g, ":");
     classDetails.appendChild(classSummary);
 
     for (const [divisionLabel, sections] of Object.entries(divisions)) {
@@ -70,7 +70,7 @@ function render(items) {
         divisionDetails.className = "thesaurus-division";
 
         const divisionSummary = document.createElement("summary");
-        divisionSummary.textContent = divisionLabel;
+        divisionSummary.textContent = divisionLabel.replace(/\.\:/g, ":");
         divisionDetails.appendChild(divisionSummary);
 
         classDetails.appendChild(divisionDetails);
@@ -82,7 +82,7 @@ function render(items) {
         sectionDetails.className = "thesaurus-section";
 
         const sectionSummary = document.createElement("summary");
-        sectionSummary.textContent = sectionLabel;
+        sectionSummary.textContent = sectionLabel.replace(/\.\:/g, ":");
         sectionDetails.appendChild(sectionSummary);
 
         for (const [subsectionLabel, subsubsections] of Object.entries(subsections)) {
@@ -90,7 +90,7 @@ function render(items) {
           subsectionDetails.className = "thesaurus-subsection";
 
           const subsectionSummary = document.createElement("summary");
-          subsectionSummary.textContent = subsectionLabel;
+          subsectionSummary.textContent = subsectionLabel.replace(/\.\:/g, ":");
           subsectionDetails.appendChild(subsectionSummary);
 
           for (const [subsubsectionLabel, heads] of Object.entries(subsubsections)) {
@@ -101,7 +101,7 @@ function render(items) {
               subsubsectionDetails.className = "thesaurus-subsubsection";
 
               const subsubsectionSummary = document.createElement("summary");
-              subsubsectionSummary.textContent = subsubsectionLabel;
+              subsubsectionSummary.textContent = subsubsectionLabel.replace(/\.\:/g, ":");
               subsubsectionDetails.appendChild(subsubsectionSummary);
 
               subsectionDetails.appendChild(subsubsectionDetails);
@@ -113,7 +113,7 @@ function render(items) {
               headDetails.className = "thesaurus-head";
 
               const headSummary = document.createElement("summary");
-              headSummary.textContent = headLabel;
+              headSummary.textContent = headLabel.replace(/\.\:/g, ":");
               headDetails.appendChild(headSummary);
 
               for (const [pos, termList] of Object.entries(posGroups)) {
