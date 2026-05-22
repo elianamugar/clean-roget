@@ -142,6 +142,23 @@ def analyze_text(text, lookup):
     pos_counts = Counter(entry["pos"] for term, entry in deduped_matches)
     class_counts = Counter(entry["class"] for term, entry in deduped_matches)
     term_counts = Counter(matched_terms)
+    class_name_counts = Counter(
+        entry["class_name"]
+        for term, entry in deduped_matches
+        if entry.get("class_name")
+    )
+    
+    section_name_counts = Counter(
+        entry["section_name"]
+        for term, entry in deduped_matches
+        if entry.get("section_name")
+    )
+    
+    subsection_counts = Counter(
+        entry["subsection"]
+        for term, entry in deduped_matches
+        if entry.get("subsection")
+    )
 
     content_tokens = [token for token in tokens if token not in STOP_WORDS]
     matched_content_tokens = [token for token in content_tokens if token in lookup]
@@ -172,6 +189,9 @@ def analyze_text(text, lookup):
         "pos_counts": pos_counts.most_common(),
         "class_counts": class_counts.most_common(),
         "top_weighted_heads": weighted_head_scores.most_common(10),
+        "top_class_names": class_name_counts.most_common(),
+        "top_section_names": section_name_counts.most_common(10),
+        "top_subsections": subsection_counts.most_common(10),
     }
 
 def debug_head(matched_terms, matched_entries, target_head):
@@ -199,6 +219,17 @@ def print_results(results):
     print(f"Semantic density: {results['semantic_density']:.2f} matches/token")
     print(f"Total semantic matches: {results['total_semantic_matches']}")
     print(f"Unique semantic heads: {results['unique_matched_heads']}")
+    print("\nClass name distribution:")
+    for cls, count in results["top_class_names"]:
+        print(f"- {cls}: {count}")
+    
+    print("\nTop section names:")
+    for section, count in results["top_section_names"]:
+        print(f"- {section}: {count}")
+    
+    print("\nTop subsections:")
+    for subsection, count in results["top_subsections"]:
+        print(f"- {subsection}: {count}")
 
     print("\nTop matched terms/phrases:")
     for term, count in results["top_terms"]:

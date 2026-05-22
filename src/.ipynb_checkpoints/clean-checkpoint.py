@@ -61,6 +61,9 @@ def clean_entries(entries):
             "class_name": clean_text(entry["class_name"]),
             "section_name": clean_text(entry["section_name"]),
             "subsection": clean_text(entry["subsection"]),
+            "subsubsection": clean_text(entry["subsubsection"]),
+            "division": clean_text(entry.get("division")),
+            "division_name": clean_text(entry.get("division_name")),
         }
 
         cleaned.append(cleaned_entry)

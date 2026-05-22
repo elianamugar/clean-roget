@@ -12,7 +12,9 @@ CLASS_RE = re.compile(r"^CLASS\s+([IVXLC]+)")
 SECTION_RE = re.compile(r"^SECTION\s+([IVXLC]+)")
 HEAD_RE = re.compile(r"^#(\d+)\.")
 POS_TAGS = {"N.", "V.", "Adj.", "Adv.", "Phr."}
-
+NUMBER_ONLY_RE = re.compile(r"^\d+\.$")
+INLINE_NUMBER_TITLE_RE = re.compile(r"^(\d+)\.\s+(.+)$")
+DIVISION_RE = re.compile(r"^DIVISION\s+([IVXLC]+)")
 
 def extract_lines():
     html = RAW_PATH.read_text(encoding="utf-8")
@@ -29,116 +31,165 @@ def extract_lines():
 def parse_structure(lines):
     current_class = None
     current_class_name = None
+    current_division = None
+    current_division_name = None
     current_section = None
-    current_head = None
-    current_head_name = None
-    awaiting_head_name = False
     current_section_name = None
     current_subsection = None
-    awaiting_class_name = False
-    awaiting_section_name = False
-    awaiting_subsection = False
+    current_subsubsection = None
+    current_head = None
+    current_head_name = None
     current_pos = None
 
-    current_buffer = []
+    awaiting_class_name = False
+    awaiting_division_name = False
+    awaiting_section_name = False
+    awaiting_subsection_title = False
+    awaiting_head_name = False
 
+    current_buffer = []
     entries = []
 
     def save_entry():
-        """Save current semantic block."""
-
         nonlocal current_buffer
 
-        if current_pos and current_buffer:
+        raw_text = " ".join(current_buffer).strip()
 
+        if current_pos and raw_text and raw_text != "—":
             entries.append({
                 "class": current_class,
+                "class_name": current_class_name,
+                "division": current_division,
+                "division_name": current_division_name,
                 "section": current_section,
+                "section_name": current_section_name,
+                "subsection": current_subsection,
+                "subsubsection": current_subsubsection,
                 "head": current_head,
                 "head_name": current_head_name,
                 "pos": current_pos,
-                "raw_text": " ".join(current_buffer),
-                "class_name": current_class_name,
-                "section_name": current_section_name,
-                "subsection": current_subsection,
+                "raw_text": raw_text,
             })
 
         current_buffer = []
 
     for line in lines:
 
-        # CLASS
         if CLASS_RE.match(line):
             save_entry()
             current_class = line
             current_class_name = None
+            current_division = None
+            current_division_name = None
+            current_section = None
+            current_section_name = None
+            current_subsection = None
+            current_subsubsection = None
             awaiting_class_name = True
+            continue
 
-        elif awaiting_class_name:
-            if line.startswith("WORDS EXPRESSING"):
-                current_class_name = line
+        if awaiting_class_name:
+            if SECTION_RE.match(line) or DIVISION_RE.match(line):
+                awaiting_class_name = False
             else:
                 current_class_name = (
-                    f"{current_class_name} {line}" if current_class_name else line
+                    f"{current_class_name} {line}"
+                    if current_class_name else line
                 )
-                awaiting_class_name = False
+                continue
 
-        # SECTION
-        elif SECTION_RE.match(line):
+        if DIVISION_RE.match(line):
+            save_entry()
+            current_division = line
+            current_division_name = None
+            current_section = None
+            current_section_name = None
+            current_subsection = None
+            current_subsubsection = None
+            awaiting_division_name = True
+            continue
+
+        if awaiting_division_name:
+            current_division_name = line.title()
+            awaiting_division_name = False
+            continue
+
+        if SECTION_RE.match(line):
             save_entry()
             current_section = line
             current_section_name = None
             current_subsection = None
+            current_subsubsection = None
             awaiting_section_name = True
+            continue
 
-        elif awaiting_section_name:
-            current_section_name = line.title()
-            awaiting_section_name = False
-            awaiting_subsection = True
+        if awaiting_section_name:
+            if NUMBER_ONLY_RE.match(line):
+                awaiting_section_name = False
+                save_entry()
+                awaiting_subsection_title = True
+                continue
 
-        # SUBSECTION
-        elif awaiting_subsection:
-            if re.match(r"^\d+\.$", line):
-                awaiting_subsection = False
-            else:
-                current_subsection = line.title()
-                awaiting_subsection = False
+            if INLINE_NUMBER_TITLE_RE.match(line):
+                awaiting_section_name = False
+                match = INLINE_NUMBER_TITLE_RE.match(line)
+                current_subsubsection = match.group(2).title()
+                continue
 
-        # HEAD
-        elif HEAD_RE.match(line):
+            if HEAD_RE.match(line):
+                awaiting_section_name = False
+                save_entry()
+                current_head = line
+                current_head_name = None
+                awaiting_head_name = True
+                continue
 
+            current_section_name = (
+                f"{current_section_name} {line.title()}"
+                if current_section_name else line.title()
+            )
+            continue
+
+        if NUMBER_ONLY_RE.match(line):
             save_entry()
-        
+            awaiting_subsection_title = True
+            continue
+
+        if awaiting_subsection_title:
+            current_subsection = line.title()
+            current_subsubsection = None
+            awaiting_subsection_title = False
+            continue
+
+        if INLINE_NUMBER_TITLE_RE.match(line):
+            save_entry()
+            match = INLINE_NUMBER_TITLE_RE.match(line)
+            current_subsubsection = match.group(2).title()
+            continue
+
+        if HEAD_RE.match(line):
+            save_entry()
             current_head = line
-        
             current_head_name = None
-        
             awaiting_head_name = True
+            continue
 
-        elif awaiting_head_name:
-
-            # Skip decorative dashes
+        if awaiting_head_name:
             if line == "—":
                 continue
-    
+
             current_head_name = line
-        
             awaiting_head_name = False
+            continue
 
-        # POS TAG
-        elif line in POS_TAGS:
-
+        if line in POS_TAGS:
             save_entry()
-
             current_pos = line
+            continue
 
-        # NORMAL CONTENT
-        else:
+        if current_pos:
+            current_buffer.append(line)
 
-            if current_pos:
-                current_buffer.append(line)
-
-    # Save final entry
     save_entry()
 
     return entries
