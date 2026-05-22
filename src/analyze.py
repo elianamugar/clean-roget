@@ -94,7 +94,7 @@ def analyze_text(text, lookup):
         "matched_terms": len(matched_terms),
         "unique_matched_terms": len(set(matched_terms)),
         "total_semantic_matches": len(matched_entries),
-        "match_rate": match_rate,
+        "unique_term_rate": match_rate,
         "unique_matched_heads": len(head_counts),
         "top_terms": term_counts.most_common(15),
         "top_heads": head_counts.most_common(10),
