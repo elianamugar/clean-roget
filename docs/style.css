@@ -52,3 +52,54 @@ h1 {
   color: #8a6d45;
   letter-spacing: 0.08em;
 }
+
+#search {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  margin-bottom: 2rem;
+  border: 1px solid #dfd3c3;
+  border-radius: 999px;
+  font-size: 1rem;
+  background: #fffaf3;
+  color: #241f1a;
+}
+
+.thesaurus-class {
+  margin-bottom: 3rem;
+}
+
+.thesaurus-section {
+  margin: 1.5rem 0;
+}
+
+.thesaurus-head {
+  background: #fffaf3;
+  border: 1px solid #dfd3c3;
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  margin: 0.75rem 0;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+}
+
+.thesaurus-head summary {
+  cursor: pointer;
+  font-weight: bold;
+  color: #4a3424;
+}
+
+.pos-block {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eadfce;
+}
+
+.pos-block strong {
+  display: inline-block;
+  margin-bottom: 0.4rem;
+  color: #8a6d45;
+  text-transform: capitalize;
+}
+
+.pos-block p {
+  line-height: 1.65;
+}
