@@ -1,6 +1,6 @@
 # Clean Roget
 
-A computational humanities and semantic analysis platform built from the public-domain 1911 edition of *Roget’s Thesaurus*.
+An ontology-based computational humanities and semantic analysis platform built from the public-domain 1911 edition of *Roget’s Thesaurus*.
 
 Clean Roget transforms the historical semantic hierarchy of Roget’s ontology into a machine-readable, browser-based toolkit for:
 
