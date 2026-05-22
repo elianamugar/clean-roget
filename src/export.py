@@ -117,7 +117,10 @@ def export_terms(entries):
                 "head": entry["head"],
                 "head_name": entry["head_name"],
                 "pos": entry["pos"],
-                "term": term
+                "term": term,
+                "class_name": entry["class_name"],
+                "section_name": entry["section_name"],
+                "subsection": entry["subsection"],
             })
 
     return rows
@@ -143,7 +146,10 @@ if __name__ == "__main__":
             f,
             fieldnames=[
                 "class",
+                "class_name",
                 "section",
+                "section_name",
+                "subsection",
                 "head",
                 "head_name",
                 "pos",

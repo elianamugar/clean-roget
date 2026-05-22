@@ -103,3 +103,16 @@ h1 {
 .pos-block p {
   line-height: 1.65;
 }
+
+.thesaurus-subsection {
+  margin: 1.25rem 0 2rem;
+  padding-left: 1rem;
+  border-left: 3px solid #dfd3c3;
+}
+
+.thesaurus-subsection h4 {
+  margin-bottom: 0.75rem;
+  color: #6f4f2f;
+  font-size: 1.05rem;
+  text-transform: none;
+}

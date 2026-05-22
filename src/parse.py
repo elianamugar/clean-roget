@@ -28,10 +28,16 @@ def extract_lines():
 
 def parse_structure(lines):
     current_class = None
+    current_class_name = None
     current_section = None
     current_head = None
     current_head_name = None
     awaiting_head_name = False
+    current_section_name = None
+    current_subsection = None
+    awaiting_class_name = False
+    awaiting_section_name = False
+    awaiting_subsection = False
     current_pos = None
 
     current_buffer = []
@@ -51,7 +57,10 @@ def parse_structure(lines):
                 "head": current_head,
                 "head_name": current_head_name,
                 "pos": current_pos,
-                "raw_text": " ".join(current_buffer)
+                "raw_text": " ".join(current_buffer),
+                "class_name": current_class_name,
+                "section_name": current_section_name,
+                "subsection": current_subsection,
             })
 
         current_buffer = []
@@ -60,17 +69,40 @@ def parse_structure(lines):
 
         # CLASS
         if CLASS_RE.match(line):
-
             save_entry()
-
             current_class = line
+            current_class_name = None
+            awaiting_class_name = True
+
+        elif awaiting_class_name:
+            if line.startswith("WORDS EXPRESSING"):
+                current_class_name = line
+            else:
+                current_class_name = (
+                    f"{current_class_name} {line}" if current_class_name else line
+                )
+                awaiting_class_name = False
 
         # SECTION
         elif SECTION_RE.match(line):
-
             save_entry()
-
             current_section = line
+            current_section_name = None
+            current_subsection = None
+            awaiting_section_name = True
+
+        elif awaiting_section_name:
+            current_section_name = line.title()
+            awaiting_section_name = False
+            awaiting_subsection = True
+
+        # SUBSECTION
+        elif awaiting_subsection:
+            if re.match(r"^\d+\.$", line):
+                awaiting_subsection = False
+            else:
+                current_subsection = line.title()
+                awaiting_subsection = False
 
         # HEAD
         elif HEAD_RE.match(line):

@@ -27,6 +27,9 @@ def clean_text(text):
     Preserve semantic structure.
     """
 
+    if text is None:
+        return None
+
     for old, new in REPLACEMENTS.items():
         text = text.replace(old, new)
 
@@ -54,7 +57,10 @@ def clean_entries(entries):
             "head": clean_text(entry["head"]),
             "head_name": clean_text(entry["head_name"]),
             "pos": normalize_pos(entry["pos"]),
-            "raw_text": clean_text(entry["raw_text"])
+            "raw_text": clean_text(entry["raw_text"]),
+            "class_name": clean_text(entry["class_name"]),
+            "section_name": clean_text(entry["section_name"]),
+            "subsection": clean_text(entry["subsection"]),
         }
 
         cleaned.append(cleaned_entry)
