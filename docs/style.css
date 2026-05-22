@@ -138,3 +138,22 @@ p {
 .term-list {
   line-height: 1.75;
 }
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  width: min(100% - 2rem, 950px);
+  margin-inline: auto;
+  padding-block: 3rem;
+}
+
+.card-grid {
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
