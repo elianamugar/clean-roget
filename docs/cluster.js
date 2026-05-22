@@ -7,18 +7,7 @@ const results = document.getElementById("cluster-results");
 let terms = [];
 let lookup = {};
 
-const STOP_WORDS = new Set([
-  "the", "to", "of", "and", "a", "an", "in", "on", "for", "with",
-  "at", "by", "from", "up", "about", "into", "over", "after",
-  "is", "am", "are", "was", "were", "be", "been", "being",
-  "i", "you", "he", "she", "it", "we", "they",
-  "me", "him", "her", "us", "them",
-  "my", "your", "his", "hers", "our", "their",
-  "this", "that", "these", "those",
-  "not", "no", "so", "as", "if", "but", "or",
-  "mr", "mrs", "miss", "said", "much", "must", "one", "though",
-  "might", "well"
-]);
+let STOP_WORDS = new Set();
 
 async function loadTerms() {
   const response = await fetch("data/roget_terms.json");
@@ -29,6 +18,17 @@ async function loadTerms() {
     lookup[term] ??= [];
     lookup[term].push(entry);
   }
+}
+
+async function loadStopwords() {
+  const response = await fetch("data/stopwords.json");
+  const words = await response.json();
+
+  STOP_WORDS = new Set(words);
+}
+
+function shortLabel(index) {
+  return String.fromCharCode(65 + index); // A, B, C...
 }
 
 function tokenize(text) {
@@ -203,21 +203,30 @@ function renderClusters(items, clusters) {
 }
 
 function renderMatrix(items, matrix) {
+  const legend = items.map((item, i) => `
+  <p><strong>${shortLabel(i)}</strong>: ${item.name}</p>
+`).join("");
+
   return `
     <section class="result-card">
       <h2>Similarity Matrix</h2>
+      <div class="matrix-legend">
+        ${legend}
+      </div>
       <div style="overflow-x:auto;">
         <table>
           <thead>
             <tr>
               <th>Text</th>
-              ${items.map(item => `<th>${item.name}</th>`).join("")}
+              ${items.map((item, i) => `
+  <th title="${item.name}">${shortLabel(i)}</th>
+`).join("")}
             </tr>
           </thead>
           <tbody>
             ${items.map((item, i) => `
               <tr>
-                <th>${item.name}</th>
+                <th title="${item.name}">${shortLabel(i)}</th>
                 ${items.map((_, j) => `
                   <td>${(matrix[i][j] * 100).toFixed(2)}%</td>
                 `).join("")}
@@ -265,4 +274,7 @@ button.addEventListener("click", async () => {
   `;
 });
 
-loadTerms();
+Promise.all([
+  loadTerms(),
+  loadStopwords()
+]);

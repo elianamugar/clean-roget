@@ -8,19 +8,8 @@ let lookup = {};
 let headsChart = null;
 let classesChart = null;
 let radarChart = null;
-
-const STOP_WORDS = new Set([
-  "the", "to", "of", "and", "a", "an", "in", "on", "for", "with",
-  "at", "by", "from", "up", "about", "into", "over", "after",
-  "is", "am", "are", "was", "were", "be", "been", "being",
-  "i", "you", "he", "she", "it", "we", "they",
-  "me", "him", "her", "us", "them",
-  "my", "your", "his", "hers", "our", "their",
-  "this", "that", "these", "those",
-  "not", "no", "so", "as", "if", "but", "or",
-  "mr", "mrs", "miss", "said", "much", "must", "one", "though",
-  "might", "well"
-]);
+let textNetwork = null;
+let STOP_WORDS = new Set();
 
 async function loadTerms() {
   const response = await fetch("data/roget_terms.json");
@@ -32,6 +21,110 @@ async function loadTerms() {
     if (!lookup[term]) lookup[term] = [];
     lookup[term].push(entry);
   }
+}
+
+async function loadStopwords() {
+  const response = await fetch("data/stopwords.json");
+  const words = await response.json();
+
+  STOP_WORDS = new Set(words);
+}
+
+function renderTextSemanticNetwork(data) {
+  const container = document.getElementById("text-network");
+  if (!container) return;
+
+  const topHeads = data.topHeads.slice(0, 25);
+  const headNames = topHeads.map(([head]) => head);
+  const headSet = new Set(headNames);
+
+  const nodes = topHeads.map(([head, count]) => ({
+    id: head,
+    label: head,
+    value: count,
+    title: `${head}: ${count}`
+  }));
+
+  const edges = [];
+
+  for (let i = 0; i < headNames.length; i++) {
+    for (let j = i + 1; j < headNames.length; j++) {
+      const a = headNames[i];
+      const b = headNames[j];
+
+      const sharedTerms = terms.filter(entry =>
+        headSet.has(entry.head_name) &&
+        (entry.head_name === a || entry.head_name === b)
+      );
+
+      const termsA = new Set(
+        sharedTerms
+          .filter(entry => entry.head_name === a)
+          .map(entry => entry.term)
+      );
+
+      const termsB = new Set(
+        sharedTerms
+          .filter(entry => entry.head_name === b)
+          .map(entry => entry.term)
+      );
+
+      const overlap = [...termsA].filter(term => termsB.has(term)).length;
+
+      if (overlap > 0) {
+        edges.push({
+          from: a,
+          to: b,
+          value: overlap,
+          title: `${overlap} shared Roget terms`
+        });
+      }
+    }
+  }
+
+  const graphData = {
+    nodes: new vis.DataSet(nodes),
+    edges: new vis.DataSet(edges)
+  };
+
+  const options = {
+    nodes: {
+      shape: "dot",
+      scaling: {
+        min: 10,
+        max: 35
+      },
+      font: {
+        color: chartTextColor(),
+        face: "Georgia"
+      }
+    },
+    edges: {
+      smooth: true,
+      color: {
+        color: document.documentElement.dataset.theme === "dark"
+          ? "#4d4035"
+          : "#bca88f"
+      }
+    },
+    physics: {
+      stabilization: true,
+      barnesHut: {
+        gravitationalConstant: -3500,
+        springLength: 150
+      }
+    },
+    interaction: {
+      hover: true,
+      navigationButtons: true
+    }
+  };
+
+  if (textNetwork) {
+    textNetwork.destroy();
+  }
+
+  textNetwork = new vis.Network(container, graphData, options);
 }
 
 function chartTextColor() {
@@ -222,9 +315,15 @@ const filteredDeduped =
   filteredDeduped.map(item => item.entry.subsubsection).filter(Boolean)
 );
 
-  const filteredTerms = filteredDeduped.map(item => item.term);
+  const termCounts = count(
+    matchedTerms.filter(term => {
+      if (selectedPOS === "all") return true;
 
-  const termCounts = count(filteredTerms).slice(0, 15);
+      return lookup[term]?.some(
+        entry => entry.pos === selectedPOS
+      );
+    })
+  ).slice(0, 15);
 
   return {
     topDivisions: divisionCounts.slice(0, 10),
@@ -291,6 +390,7 @@ button.addEventListener("click", () => {
   renderResults(analysis);
   renderCharts(analysis);
   renderRadarChart(analysis);
+  renderTextSemanticNetwork(analysis);
   document.querySelectorAll(".analysis-chart").forEach(section => {
   section.style.display = "block";
 });
@@ -298,7 +398,10 @@ button.addEventListener("click", () => {
   downloadButton.style.display = "inline-block";
 });
 
-loadTerms();
+Promise.all([
+  loadTerms(),
+  loadStopwords()
+]);
 
 const fileInput = document.getElementById("file-input");
 

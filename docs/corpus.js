@@ -10,18 +10,7 @@ let lookup = {};
 let headsChart = null;
 let radarChart = null;
 
-const STOP_WORDS = new Set([
-  "the", "to", "of", "and", "a", "an", "in", "on", "for", "with",
-  "at", "by", "from", "up", "about", "into", "over", "after",
-  "is", "am", "are", "was", "were", "be", "been", "being",
-  "i", "you", "he", "she", "it", "we", "they",
-  "me", "him", "her", "us", "them",
-  "my", "your", "his", "hers", "our", "their",
-  "this", "that", "these", "those",
-  "not", "no", "so", "as", "if", "but", "or",
-  "mr", "mrs", "miss", "said", "much", "must", "one", "though",
-  "might", "well"
-]);
+let STOP_WORDS = new Set();
 
 async function loadTerms() {
   const response = await fetch("data/roget_terms.json");
@@ -32,6 +21,17 @@ async function loadTerms() {
     lookup[term] ??= [];
     lookup[term].push(entry);
   }
+}
+
+async function loadStopwords() {
+  const response = await fetch("data/stopwords.json");
+  const words = await response.json();
+
+  STOP_WORDS = new Set(words);
+}
+
+function shortLabel(index) {
+  return String.fromCharCode(65 + index); // A, B, C...
 }
 
 function chartTextColor() {
@@ -302,4 +302,7 @@ button.addEventListener("click", async () => {
   renderRadarChart(analysisA, analysisB, nameA, nameB);
 });
 
-loadTerms();
+Promise.all([
+  loadTerms(),
+  loadStopwords()
+]);
