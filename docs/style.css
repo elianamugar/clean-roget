@@ -1,0 +1,54 @@
+body {
+  margin: 0;
+  font-family: Georgia, serif;
+  background: #f7f3ec;
+  color: #241f1a;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 5rem 1.5rem;
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+h1 {
+  font-size: 4rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #6f6258;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.card {
+  background: #fffaf3;
+  border: 1px solid #dfd3c3;
+  border-radius: 18px;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+.badge {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #8a6d45;
+  letter-spacing: 0.08em;
+}
