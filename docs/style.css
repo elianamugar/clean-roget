@@ -6,9 +6,9 @@ body {
 }
 
 main {
-  max-width: 900px;
+  max-width: 950px;
   margin: 0 auto;
-  padding: 5rem 1.5rem;
+  padding: 2rem;
 }
 
 .hero {
@@ -26,10 +26,14 @@ h1 {
   color: #6f6258;
 }
 
+p {
+  line-height: 1.7;
+}
+
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
 }
 
 .card {
