@@ -378,3 +378,25 @@ th {
   background: var(--card);
   border-radius: 18px;
 }
+
+.hero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+
+  margin-bottom: 3rem;
+}
+
+.hero-text {
+  flex: 1;
+}
+
+.hero-logo {
+  width: 110px;
+  height: 110px;
+
+  object-fit: contain;
+
+  opacity: 0.95;
+}
