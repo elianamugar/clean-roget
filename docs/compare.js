@@ -9,6 +9,9 @@ const results = document.getElementById("comparison-results");
 
 let terms = [];
 let lookup = {};
+let comparisonHeadsChart = null;
+let comparisonClassesChart = null;
+let semanticRadarChart = null;
 
 const STOP_WORDS = new Set([
   "the", "to", "of", "and", "a", "an", "in", "on", "for", "with",
@@ -33,6 +36,164 @@ async function loadTerms() {
     if (!lookup[term]) lookup[term] = [];
     lookup[term].push(entry);
   }
+}
+
+function renderRadarChart(a, b, nameA, nameB) {
+  const labels = [
+    ...new Set([
+      ...a.topHeads.map(([label]) => label),
+      ...b.topHeads.map(([label]) => label)
+    ])
+  ].slice(0, 8);
+
+  const valuesA = labels.map(label => a.headCounts.get(label) || 0);
+  const valuesB = labels.map(label => b.headCounts.get(label) || 0);
+
+  const canvas = document.getElementById("semantic-radar-chart");
+
+  if (!canvas) return;
+
+  if (semanticRadarChart) {
+    semanticRadarChart.destroy();
+  }
+
+  semanticRadarChart = new Chart(canvas, {
+    type: "radar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: nameA,
+          data: valuesA
+        },
+        {
+          label: nameB,
+          data: valuesB
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: "Semantic Fingerprint Radar"
+        }
+      },
+      scales: {
+        r: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+function renderComparisonChart(
+  canvasId,
+  title,
+  labels,
+  valuesA,
+  valuesB,
+  nameA,
+  nameB,
+  existingChart
+) {
+  const canvas = document.getElementById(canvasId);
+
+  if (!canvas) return null;
+
+  if (existingChart) {
+    existingChart.destroy();
+  }
+
+  return new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: nameA,
+          data: valuesA
+        },
+        {
+          label: nameB,
+          data: valuesB
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: title
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            maxRotation: 45,
+            minRotation: 30
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderCharts(a, b, nameA, nameB) {
+  const topHeadLabels = [
+    ...new Set([
+      ...a.topHeads.map(([label]) => label),
+      ...b.topHeads.map(([label]) => label)
+    ])
+  ].slice(0, 10);
+
+  const headValuesA = topHeadLabels.map(label =>
+    a.headCounts.get(label) || 0
+  );
+
+  const headValuesB = topHeadLabels.map(label =>
+    b.headCounts.get(label) || 0
+  );
+
+  comparisonHeadsChart = renderComparisonChart(
+    "comparison-heads-chart",
+    "Semantic Head Comparison",
+    topHeadLabels,
+    headValuesA,
+    headValuesB,
+    nameA,
+    nameB,
+    comparisonHeadsChart
+  );
+
+  const classLabels = [
+    ...new Set([
+      ...a.topClasses.map(([label]) => label),
+      ...b.topClasses.map(([label]) => label)
+    ])
+  ];
+
+  const classValuesA = classLabels.map(label =>
+    a.classCounts.get(label) || 0
+  );
+
+  const classValuesB = classLabels.map(label =>
+    b.classCounts.get(label) || 0
+  );
+
+  comparisonClassesChart = renderComparisonChart(
+    "comparison-classes-chart",
+    "Class Distribution Comparison",
+    classLabels,
+    classValuesA,
+    classValuesB,
+    nameA,
+    nameB,
+    comparisonClassesChart
+  );
 }
 
 function tokenize(text) {
@@ -228,6 +389,8 @@ button.addEventListener("click", () => {
   const analysisB = analyze(bText);
 
   renderComparison(analysisA, analysisB, nameA, nameB);
+  renderCharts(analysisA, analysisB, nameA, nameB);
+  renderRadarChart(analysisA, analysisB, nameA, nameB);
 });
 
 loadTerms();

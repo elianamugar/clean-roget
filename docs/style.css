@@ -192,3 +192,11 @@ button:hover {
   padding: 1.5rem;
   margin: 1rem 0;
 }
+
+.chart-card {
+  background: #fffaf3;
+  border: 1px solid #dfd3c3;
+  border-radius: 18px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}

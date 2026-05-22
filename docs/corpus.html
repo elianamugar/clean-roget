@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Compare Corpora | Clean Roget</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <main>
+    <a href="index.html">← Back to Home</a>
+
+    <h1>Compare Corpora</h1>
+
+    <p>
+      Upload multiple .txt files for each corpus or author to compare aggregate semantic profiles.
+    </p>
+
+    <section class="compare-grid">
+      <div class="compare-panel">
+        <h2>Corpus A</h2>
+        <input id="label-a" type="text" placeholder="e.g. Jane Austen" />
+        <input id="files-a" type="file" accept=".txt,text/plain" multiple />
+      </div>
+
+      <div class="compare-panel">
+        <h2>Corpus B</h2>
+        <input id="label-b" type="text" placeholder="e.g. Fyodor Dostoevsky" />
+        <input id="files-b" type="file" accept=".txt,text/plain" multiple />
+      </div>
+    </section>
+
+    <button id="compare-corpora-button">Compare Corpora</button>
+
+    <section id="corpus-results"></section>
+
+    <section class="chart-card">
+      <canvas id="corpus-heads-chart"></canvas>
+    </section>
+
+    <section class="chart-card">
+      <canvas id="corpus-radar-chart"></canvas>
+    </section>
+  </main>
+
+  <script src="corpus.js"></script>
+</body>
+</html>

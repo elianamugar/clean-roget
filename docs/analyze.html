@@ -21,10 +21,20 @@
     <textarea id="text-input" placeholder="Paste text here..."></textarea>
 
     <button id="analyze-button">Analyze Text</button>
-
+    <button id="download-button" style="display:none;">
+    Download Full Analysis CSV
+    </button>
     <section id="results"></section>
+    <section class="chart-card">
+        <canvas id="heads-chart"></canvas>
+    </section>
+
+    <section class="chart-card">
+        <canvas id="classes-chart"></canvas>
+    </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="analyze.js"></script>
 </body>
 </html>
