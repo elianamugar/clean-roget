@@ -157,3 +157,38 @@ main {
   width: 100%;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
+
+textarea {
+  width: 100%;
+  min-height: 260px;
+  padding: 1rem;
+  border: 1px solid #dfd3c3;
+  border-radius: 16px;
+  background: #fffaf3;
+  color: #241f1a;
+  font: inherit;
+  line-height: 1.6;
+}
+
+button {
+  margin: 1rem 0 2rem;
+  padding: 0.8rem 1.2rem;
+  border: 1px solid #8a6d45;
+  border-radius: 999px;
+  background: #4a3424;
+  color: #fffaf3;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+.result-card {
+  background: #fffaf3;
+  border: 1px solid #dfd3c3;
+  border-radius: 18px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+}
