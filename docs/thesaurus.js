@@ -130,7 +130,7 @@ function render(items) {
                   a.localeCompare(b)
                 );
 
-                termsP.textContent = uniqueTerms.join(", ");
+                termsP.textContent = uniqueTerms.join(", ").replace(/\.\:/g, ":");
 
                 posBlock.appendChild(posTitle);
                 posBlock.appendChild(termsP);
