@@ -1,38 +1,48 @@
 const container = document.getElementById("thesaurus");
 const searchInput = document.getElementById("search");
 
-let blocks = [];
+let terms = [];
 
 async function loadThesaurus() {
-  const response = await fetch("data/clean_semantic_blocks.json");
-  blocks = await response.json();
-  render(blocks);
+  const response = await fetch("data/roget_terms.json");
+  terms = await response.json();
+  render(terms);
 }
 
-function groupBlocks(items) {
+function label(value, fallback = "Uncategorized") {
+  return value || fallback;
+}
+
+function groupTerms(items) {
   const grouped = {};
 
-  for (const block of items) {
-    const cls = block.class;
-    const className = block.class_name || "";
-    const section = block.section;
-    const sectionName = block.section_name || "";
-    const subsection = block.subsection || "Uncategorized";
-    const head = `${block.head} ${block.head_name}`;
+  for (const item of items) {
+    const classLabel = item.class_name
+      ? `${item.class}: ${item.class_name}`
+      : item.class;
 
-    const classLabel = className ? `${cls}: ${className}` : cls;
-    const sectionLabel = sectionName ? `${section}: ${sectionName}` : section;
+    const divisionLabel = item.division
+      ? `${item.division}: ${item.division_name || ""}`.trim()
+      : "No Division";
 
-    if (!grouped[classLabel]) grouped[classLabel] = {};
-    if (!grouped[classLabel][sectionLabel]) grouped[classLabel][sectionLabel] = {};
-    if (!grouped[classLabel][sectionLabel][subsection]) {
-      grouped[classLabel][sectionLabel][subsection] = {};
-    }
-    if (!grouped[classLabel][sectionLabel][subsection][head]) {
-      grouped[classLabel][sectionLabel][subsection][head] = [];
-    }
+    const sectionLabel = item.section_name
+      ? `${item.section}: ${item.section_name}`
+      : item.section;
 
-    grouped[classLabel][sectionLabel][subsection][head].push(block);
+    const subsectionLabel = label(item.subsection);
+    const subsubsectionLabel = label(item.subsubsection);
+    const headLabel = `${item.head} ${item.head_name}`;
+    const posLabel = item.pos || "unknown";
+
+    grouped[classLabel] ??= {};
+    grouped[classLabel][divisionLabel] ??= {};
+    grouped[classLabel][divisionLabel][sectionLabel] ??= {};
+    grouped[classLabel][divisionLabel][sectionLabel][subsectionLabel] ??= {};
+    grouped[classLabel][divisionLabel][sectionLabel][subsectionLabel][subsubsectionLabel] ??= {};
+    grouped[classLabel][divisionLabel][sectionLabel][subsectionLabel][subsubsectionLabel][headLabel] ??= {};
+    grouped[classLabel][divisionLabel][sectionLabel][subsectionLabel][subsubsectionLabel][headLabel][posLabel] ??= [];
+
+    grouped[classLabel][divisionLabel][sectionLabel][subsectionLabel][subsubsectionLabel][headLabel][posLabel].push(item.term);
   }
 
   return grouped;
@@ -41,9 +51,9 @@ function groupBlocks(items) {
 function render(items) {
   container.innerHTML = "";
 
-  const grouped = groupBlocks(items);
+  const grouped = groupTerms(items);
 
-  for (const [classLabel, sections] of Object.entries(grouped)) {
+  for (const [classLabel, divisions] of Object.entries(grouped)) {
     const classEl = document.createElement("section");
     classEl.className = "thesaurus-class";
 
@@ -51,52 +61,76 @@ function render(items) {
     classTitle.textContent = classLabel;
     classEl.appendChild(classTitle);
 
-    for (const [sectionLabel, subsections] of Object.entries(sections)) {
-      const sectionEl = document.createElement("section");
-      sectionEl.className = "thesaurus-section";
-
-      const sectionTitle = document.createElement("h3");
-      sectionTitle.textContent = sectionLabel;
-      sectionEl.appendChild(sectionTitle);
-
-      for (const [subsectionLabel, heads] of Object.entries(subsections)) {
-        const subsectionEl = document.createElement("section");
-        subsectionEl.className = "thesaurus-subsection";
-
-        const subsectionTitle = document.createElement("h4");
-        subsectionTitle.textContent = subsectionLabel;
-        subsectionEl.appendChild(subsectionTitle);
-
-        for (const [head, entries] of Object.entries(heads)) {
-          const details = document.createElement("details");
-          details.className = "thesaurus-head";
-
-          const summary = document.createElement("summary");
-          summary.textContent = head;
-          details.appendChild(summary);
-
-          for (const entry of entries) {
-            const posBlock = document.createElement("div");
-            posBlock.className = "pos-block";
-
-            const pos = document.createElement("strong");
-            pos.textContent = entry.pos;
-
-            const text = document.createElement("p");
-            text.textContent = entry.raw_text;
-
-            posBlock.appendChild(pos);
-            posBlock.appendChild(text);
-            details.appendChild(posBlock);
-          }
-
-          subsectionEl.appendChild(details);
-        }
-
-        sectionEl.appendChild(subsectionEl);
+    for (const [divisionLabel, sections] of Object.entries(divisions)) {
+      if (divisionLabel !== "No Division") {
+        const divisionTitle = document.createElement("h3");
+        divisionTitle.className = "division-title";
+        divisionTitle.textContent = divisionLabel;
+        classEl.appendChild(divisionTitle);
       }
 
-      classEl.appendChild(sectionEl);
+      for (const [sectionLabel, subsections] of Object.entries(sections)) {
+        const sectionEl = document.createElement("section");
+        sectionEl.className = "thesaurus-section";
+
+        const sectionTitle = document.createElement("h3");
+        sectionTitle.textContent = sectionLabel;
+        sectionEl.appendChild(sectionTitle);
+
+        for (const [subsectionLabel, subsubsections] of Object.entries(subsections)) {
+          const subsectionEl = document.createElement("section");
+          subsectionEl.className = "thesaurus-subsection";
+
+          const subsectionTitle = document.createElement("h4");
+          subsectionTitle.textContent = subsectionLabel;
+          subsectionEl.appendChild(subsectionTitle);
+
+          for (const [subsubsectionLabel, heads] of Object.entries(subsubsections)) {
+            if (subsubsectionLabel !== "Uncategorized") {
+              const subsubTitle = document.createElement("h5");
+              subsubTitle.className = "subsubsection-title";
+              subsubTitle.textContent = subsubsectionLabel;
+              subsectionEl.appendChild(subsubTitle);
+            }
+
+            for (const [headLabel, posGroups] of Object.entries(heads)) {
+              const details = document.createElement("details");
+              details.className = "thesaurus-head";
+
+              const summary = document.createElement("summary");
+              summary.textContent = headLabel;
+              details.appendChild(summary);
+
+              for (const [pos, termList] of Object.entries(posGroups)) {
+                const posBlock = document.createElement("div");
+                posBlock.className = "pos-block";
+
+                const posTitle = document.createElement("strong");
+                posTitle.textContent = pos;
+
+                const termsP = document.createElement("p");
+                termsP.className = "term-list";
+
+                const uniqueTerms = [...new Set(termList)].sort((a, b) =>
+                  a.localeCompare(b)
+                );
+
+                termsP.textContent = uniqueTerms.join(", ");
+
+                posBlock.appendChild(posTitle);
+                posBlock.appendChild(termsP);
+                details.appendChild(posBlock);
+              }
+
+              subsectionEl.appendChild(details);
+            }
+          }
+
+          sectionEl.appendChild(subsectionEl);
+        }
+
+        classEl.appendChild(sectionEl);
+      }
     }
 
     container.appendChild(classEl);
@@ -106,14 +140,20 @@ function render(items) {
 searchInput.addEventListener("input", () => {
   const query = searchInput.value.toLowerCase();
 
-  const filtered = blocks.filter((block) => {
+  const filtered = terms.filter((item) => {
     return (
-      (block.class_name || "").toLowerCase().includes(query) ||
-      (block.section_name || "").toLowerCase().includes(query) ||
-      (block.subsection || "").toLowerCase().includes(query) ||
-      block.head_name.toLowerCase().includes(query) ||
-      block.raw_text.toLowerCase().includes(query) ||
-      block.pos.toLowerCase().includes(query)
+      (item.class || "").toLowerCase().includes(query) ||
+      (item.class_name || "").toLowerCase().includes(query) ||
+      (item.division || "").toLowerCase().includes(query) ||
+      (item.division_name || "").toLowerCase().includes(query) ||
+      (item.section || "").toLowerCase().includes(query) ||
+      (item.section_name || "").toLowerCase().includes(query) ||
+      (item.subsection || "").toLowerCase().includes(query) ||
+      (item.subsubsection || "").toLowerCase().includes(query) ||
+      (item.head || "").toLowerCase().includes(query) ||
+      (item.head_name || "").toLowerCase().includes(query) ||
+      (item.pos || "").toLowerCase().includes(query) ||
+      (item.term || "").toLowerCase().includes(query)
     );
   });
 

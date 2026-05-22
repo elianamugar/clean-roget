@@ -120,3 +120,21 @@ p {
   font-size: 1.05rem;
   text-transform: none;
 }
+
+.division-title {
+  margin-top: 2rem;
+  color: #5d4030;
+  border-bottom: 1px solid #dfd3c3;
+  padding-bottom: 0.4rem;
+}
+
+.subsubsection-title {
+  margin: 1rem 0 0.5rem;
+  color: #7a5a3a;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+}
+
+.term-list {
+  line-height: 1.75;
+}
