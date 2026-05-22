@@ -106,7 +106,6 @@ Supports:
 * verb-only analysis
 * adjective-only analysis
 * adverb-only analysis
-* phrase analysis
 
 ---
 
