@@ -153,3 +153,14 @@ button.addEventListener("click", () => {
 });
 
 loadTerms();
+
+const fileInput = document.getElementById("file-input");
+
+fileInput.addEventListener("change", async () => {
+  const file = fileInput.files[0];
+
+  if (!file) return;
+
+  const text = await file.text();
+  input.value = text;
+});

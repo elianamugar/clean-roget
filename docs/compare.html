@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Compare Texts | Clean Roget</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <a href="index.html">← Back to Home</a>
+
+    <h1>Compare Texts or Authors</h1>
+
+    <p>
+      Upload or paste two texts to compare their Roget-based semantic profiles.
+      For author comparison, upload one representative .txt file for each author.
+    </p>
+
+    <section class="compare-grid">
+      <div class="compare-panel">
+        <h2>Text A</h2>
+        <label>Label / Author</label>
+        <input id="label-a" type="text" placeholder="e.g. Jane Austen" />
+
+        <label>Upload .txt</label>
+        <input id="file-a" type="file" accept=".txt,text/plain" />
+
+        <textarea id="text-a" placeholder="Paste Text A here..."></textarea>
+      </div>
+
+      <div class="compare-panel">
+        <h2>Text B</h2>
+        <label>Label / Author</label>
+        <input id="label-b" type="text" placeholder="e.g. Mary Shelley" />
+
+        <label>Upload .txt</label>
+        <input id="file-b" type="file" accept=".txt,text/plain" />
+
+        <textarea id="text-b" placeholder="Paste Text B here..."></textarea>
+      </div>
+    </section>
+
+    <button id="compare-button">Compare Texts</button>
+
+    <section id="comparison-results"></section>
+  </main>
+
+  <script src="compare.js"></script>
+</body>
+</html>
