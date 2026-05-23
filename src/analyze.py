@@ -1,282 +1,32 @@
 import argparse
 import json
-import re
 import math
 from collections import Counter
 from pathlib import Path
 from text_cleaning import clean_gutenberg_text
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
+from nlp import (
+    LEMMATIZER,
+    STOP_WORDS,
+    preprocess_text,
+    generate_ngrams,
+    get_content_tokens,
+    lemmatize_phrase,
+    spacy_pos_to_roget_pos,
+)
+from semantic_analysis import (
+    load_roget_terms,
+    build_lookup,
+    analyze_text,
+)
 
 OUTPUT_PATH = Path("data/processed/analysis_results.json")
 
-CUSTOM_STOP_WORDS = {
-    "mr",
-    "mrs",
-    "miss",
-    "said",
-    "much",
-    "must",
-    "one",
-    "though",
-    "might",
-    "well",
-}
-
-STOP_WORDS = set(stopwords.words("english")) | CUSTOM_STOP_WORDS
-LEMMATIZER = WordNetLemmatizer()
 ROGET_PATH = Path("data/processed/roget_terms.json")
 
 try:
     import spacy
 except ImportError:
     spacy = None
-
-def tokenize_with_spacy(text):
-    if spacy is None:
-        raise ImportError(
-            "spaCy is not installed. Run: pip install spacy && python -m spacy download en_core_web_sm"
-        )
-
-    nlp = spacy.load("en_core_web_sm")
-    doc = nlp(text)
-
-    tokens = []
-
-    for token in doc:
-        if token.is_space or token.is_punct:
-            continue
-
-        if token.is_stop:
-            continue
-
-        if not token.is_alpha:
-            continue
-
-        tokens.append({
-            "text": token.text.lower(),
-            "lemma": token.lemma_.lower(),
-            "pos": token.pos_.lower(),
-        })
-
-    return tokens
-
-def spacy_pos_to_roget_pos(spacy_pos):
-    mapping = {
-        "noun": {"noun"},
-        "proper_noun": {"noun"},
-        "verb": {"verb"},
-        "aux": {"verb"},
-        "adj": {"adjective"},
-        "adv": {"adverb"},
-    }
-
-    return mapping.get(spacy_pos, set())
-
-def load_roget_terms():
-    with ROGET_PATH.open("r", encoding="utf-8") as f:
-        return json.load(f)
-
-
-def tokenize(text):
-    return re.findall(r"\b[a-zA-Z'-]+\b", text.lower())
-
-def lemmatize_phrase(phrase):
-    words = phrase.split()
-    return " ".join(LEMMATIZER.lemmatize(word) for word in words)
-
-def build_lookup(roget_terms):
-    lookup = {}
-
-    for entry in roget_terms:
-        term = entry["term"].lower()
-        normalized_term = lemmatize_phrase(term)
-
-        if normalized_term not in lookup:
-            lookup[normalized_term] = []
-
-        lookup[normalized_term].append(entry)
-
-    return lookup
-
-
-def generate_ngrams(tokens, min_n=1, max_n=3):
-    """Generate n-grams from tokens."""
-    ngrams = []
-
-    for n in range(min_n, max_n + 1):
-        for i in range(len(tokens) - n + 1):
-            ngram = " ".join(tokens[i:i + n])
-            ngrams.append(ngram)
-
-    return ngrams
-
-def build_head_document_frequency(lookup):
-    """
-    Count how many unique terms map to each semantic head.
-    Broad heads get higher counts and lower weights.
-    """
-    head_terms = {}
-
-    for term, entries in lookup.items():
-        for entry in entries:
-            head = entry["head_name"]
-
-            if head not in head_terms:
-                head_terms[head] = set()
-
-            head_terms[head].add(term)
-
-    return {
-        head: len(terms)
-        for head, terms in head_terms.items()
-    }
-
-def analyze_text(input_path, lookup, use_spacy=False):
-    text = Path(input_path).read_text(encoding="utf-8")
-    text = clean_gutenberg_text(text)
-
-    if use_spacy:
-        spacy_tokens = tokenize_with_spacy(text)
-        token_words = [token["lemma"] for token in spacy_tokens]
-    else:
-        spacy_tokens = None
-        token_words = tokenize(text)
-
-    token_words = [
-        LEMMATIZER.lemmatize(token)
-        for token in token_words
-    ]
-
-    # Keep stopwords out of unigram matching,
-    # but preserve them for phrase matching.
-    content_tokens = [token for token in token_words if token not in STOP_WORDS]
-
-    candidates = []
-
-    # Single-word matches without stopwords
-    candidates.extend(content_tokens)
-
-    # Phrase matches using original token sequence
-    candidates.extend(generate_ngrams(token_words, min_n=2, max_n=3))
-
-    matched_entries = []
-    matched_terms = []
-
-    if use_spacy:
-        for token in spacy_tokens:
-            lemma = LEMMATIZER.lemmatize(token["lemma"])
-
-            if lemma not in lookup:
-                continue
-
-            allowed_pos = spacy_pos_to_roget_pos(token["pos"])
-
-            matched_any_entry = False
-
-            for entry in lookup[lemma]:
-                if not allowed_pos or entry["pos"] in allowed_pos:
-                    matched_entries.append(entry)
-                    matched_any_entry = True
-
-            if matched_any_entry:
-                matched_terms.append(lemma)
-
-        # Phrase matches stay POS-flexible for now
-        phrase_candidates = generate_ngrams(token_words, min_n=2, max_n=3)
-
-        for candidate in phrase_candidates:
-            if candidate in lookup:
-                matched_terms.append(candidate)
-                matched_entries.extend(lookup[candidate])
-
-    else:
-        for candidate in candidates:
-            if candidate in lookup:
-                matched_terms.append(candidate)
-                matched_entries.extend(lookup[candidate])
-
-    deduped_matches = []
-    seen = set()
-    
-    for term, entry in zip(matched_terms, matched_entries):
-        key = (term, entry["head_name"], entry["pos"])
-    
-        if key not in seen:
-            seen.add(key)
-            deduped_matches.append((term, entry))
-
-    head_df = build_head_document_frequency(lookup)
-    total_terms_in_lookup = len(lookup)
-    
-    weighted_head_scores = Counter()
-    
-    for term, entry in deduped_matches:
-        head = entry["head_name"]
-    
-        # Inverse semantic frequency:
-        # common/broad heads receive smaller weights.
-        weight = math.log(
-            (1 + total_terms_in_lookup) / (1 + head_df.get(head, 1))
-        ) + 1
-    
-        weighted_head_scores[head] += weight
-
-    head_counts = Counter(entry["head_name"] for term, entry in deduped_matches)
-    pos_counts = Counter(entry["pos"] for term, entry in deduped_matches)
-    class_counts = Counter(entry["class"] for term, entry in deduped_matches)
-    term_counts = Counter(matched_terms)
-    class_name_counts = Counter(
-        entry["class_name"]
-        for term, entry in deduped_matches
-        if entry.get("class_name")
-    )
-    
-    section_name_counts = Counter(
-        entry["section_name"]
-        for term, entry in deduped_matches
-        if entry.get("section_name")
-    )
-    
-    subsection_counts = Counter(
-        entry["subsection"]
-        for term, entry in deduped_matches
-        if entry.get("subsection")
-    )
-
-    content_tokens = [token for token in token_words if token not in STOP_WORDS]
-    matched_content_tokens = [token for token in content_tokens if token in lookup]
-    
-    token_coverage = (
-        len(matched_content_tokens) / len(content_tokens)
-        if content_tokens else 0
-    )
-    
-    unique_term_rate = (
-        len(set(matched_terms)) / len(token_words)
-        if token_words else 0
-    )
-    
-    semantic_density = len(deduped_matches) / len(token_words) if token_words else 0
-    
-    return {
-        "total_tokens": len(token_words),
-        "matched_terms": len(matched_terms),
-        "unique_matched_terms": len(set(matched_terms)),
-        "total_semantic_matches": len(deduped_matches),
-        "token_coverage": token_coverage,
-        "unique_term_rate": unique_term_rate,
-        "semantic_density": semantic_density,
-        "unique_matched_heads": len(head_counts),
-        "top_terms": term_counts.most_common(15),
-        "top_heads": head_counts.most_common(10),
-        "pos_counts": pos_counts.most_common(),
-        "class_counts": class_counts.most_common(),
-        "top_weighted_heads": weighted_head_scores.most_common(10),
-        "top_class_names": class_name_counts.most_common(),
-        "top_section_names": section_name_counts.most_common(10),
-        "top_subsections": subsection_counts.most_common(10),
-    }
 
 def debug_head(matched_terms, matched_entries, target_head):
     counter = Counter()

@@ -1,0 +1,191 @@
+{
+  "text_a": "sample_texts/pride_and_prejudice.txt",
+  "text_b": "sample_texts/crime_and_punishment.txt",
+  "use_spacy": true,
+  "similarity_scores": {
+    "dominant_thematic_overlap": 0.56,
+    "broad_structural_similarity": 0.8896642700953966,
+    "class_similarity": 0.9800728341365268,
+    "part_of_speech_similarity": 0.9969868928639346
+  },
+  "most_different_semantic_heads": [
+    [
+      "Failure",
+      0.004839594845659389
+    ],
+    [
+      "Clothing",
+      0.004228216483083395
+    ],
+    [
+      "Desire",
+      0.00397168596226896
+    ],
+    [
+      "Courtesy",
+      0.003432236768498415
+    ],
+    [
+      "Infant",
+      0.003034937317664272
+    ],
+    [
+      "Belief",
+      0.0029469072680264347
+    ],
+    [
+      "Approbation",
+      0.002927825379869215
+    ],
+    [
+      "Loss",
+      0.00281809634992924
+    ],
+    [
+      "Support",
+      0.0027560896769335892
+    ],
+    [
+      "Capability of producing",
+      0.0027544180760007905
+    ]
+  ],
+  "shared_semantic_heads": [
+    [
+      "Belief",
+      424
+    ],
+    [
+      "Eventuality",
+      302
+    ],
+    [
+      "Information",
+      297
+    ],
+    [
+      "Desire",
+      286
+    ],
+    [
+      "Love",
+      273
+    ],
+    [
+      "Affirmation",
+      269
+    ],
+    [
+      "Capability of producing",
+      253
+    ],
+    [
+      "Greatness",
+      247
+    ],
+    [
+      "Capability of giving",
+      242
+    ],
+    [
+      "Knowledge",
+      237
+    ]
+  ],
+  "text_a_top_heads": [
+    [
+      "Belief",
+      424
+    ],
+    [
+      "Desire",
+      330
+    ],
+    [
+      "Eventuality",
+      302
+    ],
+    [
+      "Information",
+      297
+    ],
+    [
+      "Love",
+      273
+    ],
+    [
+      "Failure",
+      270
+    ],
+    [
+      "Affirmation",
+      269
+    ],
+    [
+      "Capability of producing",
+      263
+    ],
+    [
+      "Greatness",
+      247
+    ],
+    [
+      "Capability of giving",
+      242
+    ]
+  ],
+  "text_b_top_heads": [
+    [
+      "Eventuality",
+      560
+    ],
+    [
+      "Belief",
+      499
+    ],
+    [
+      "Knowledge",
+      381
+    ],
+    [
+      "Receptacle",
+      376
+    ],
+    [
+      "Information",
+      367
+    ],
+    [
+      "Point of time",
+      367
+    ],
+    [
+      "Mankind",
+      366
+    ],
+    [
+      "Clothing",
+      362
+    ],
+    [
+      "Beginning",
+      339
+    ],
+    [
+      "Successive change of",
+      338
+    ]
+  ],
+  "text_a_summary": {
+    "total_tokens": 47166,
+    "matched_terms": 40347,
+    "token_coverage": 0.8551299648280003,
+    "semantic_density": 0.8079336810414282
+  },
+  "text_b_summary": {
+    "total_tokens": 77733,
+    "matched_terms": 66716,
+    "token_coverage": 0.8603339671206653,
+    "semantic_density": 0.7848018216201613
+  }
+}
