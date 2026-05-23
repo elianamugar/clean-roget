@@ -19,6 +19,11 @@ Clean Roget transforms the historical semantic hierarchy of Roget’s ontology i
 * [https://elianamugar.github.io/clean-roget/](https://elianamugar.github.io/clean-roget/)
 
 ---
+### CLI Usage for more precision (with spaCy)
+
+* [CLI Analysis Tools](https://github.com/elianamugar/clean-roget#cli-analysis-tools)
+* [Higher-Precision spaCy Analysis](https://github.com/elianamugar/clean-roget#higher-precision-spacy-analysis)
+---
 
 # What is Roget’s Thesaurus?
 
