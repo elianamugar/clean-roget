@@ -27,7 +27,51 @@ STOP_WORDS = set(stopwords.words("english")) | CUSTOM_STOP_WORDS
 LEMMATIZER = WordNetLemmatizer()
 ROGET_PATH = Path("data/processed/roget_terms.json")
 
+try:
+    import spacy
+except ImportError:
+    spacy = None
 
+def tokenize_with_spacy(text):
+    if spacy is None:
+        raise ImportError(
+            "spaCy is not installed. Run: pip install spacy && python -m spacy download en_core_web_sm"
+        )
+
+    nlp = spacy.load("en_core_web_sm")
+    doc = nlp(text)
+
+    tokens = []
+
+    for token in doc:
+        if token.is_space or token.is_punct:
+            continue
+
+        if token.is_stop:
+            continue
+
+        if not token.is_alpha:
+            continue
+
+        tokens.append({
+            "text": token.text.lower(),
+            "lemma": token.lemma_.lower(),
+            "pos": token.pos_.lower(),
+        })
+
+    return tokens
+
+def spacy_pos_to_roget_pos(spacy_pos):
+    mapping = {
+        "noun": {"noun"},
+        "proper_noun": {"noun"},
+        "verb": {"verb"},
+        "aux": {"verb"},
+        "adj": {"adjective"},
+        "adv": {"adverb"},
+    }
+
+    return mapping.get(spacy_pos, set())
 
 def load_roget_terms():
     with ROGET_PATH.open("r", encoding="utf-8") as f:
@@ -88,13 +132,25 @@ def build_head_document_frequency(lookup):
         for head, terms in head_terms.items()
     }
 
-def analyze_text(text, lookup):
-    tokens = tokenize(text)
-    tokens = [LEMMATIZER.lemmatize(token) for token in tokens]
+def analyze_text(input_path, lookup, use_spacy=False):
+    text = Path(input_path).read_text(encoding="utf-8")
+    text = clean_gutenberg_text(text)
+
+    if use_spacy:
+        spacy_tokens = tokenize_with_spacy(text)
+        token_words = [token["lemma"] for token in spacy_tokens]
+    else:
+        spacy_tokens = None
+        token_words = tokenize(text)
+
+    token_words = [
+        LEMMATIZER.lemmatize(token)
+        for token in token_words
+    ]
 
     # Keep stopwords out of unigram matching,
     # but preserve them for phrase matching.
-    content_tokens = [token for token in tokens if token not in STOP_WORDS]
+    content_tokens = [token for token in token_words if token not in STOP_WORDS]
 
     candidates = []
 
@@ -102,15 +158,43 @@ def analyze_text(text, lookup):
     candidates.extend(content_tokens)
 
     # Phrase matches using original token sequence
-    candidates.extend(generate_ngrams(tokens, min_n=2, max_n=3))
+    candidates.extend(generate_ngrams(token_words, min_n=2, max_n=3))
 
     matched_entries = []
     matched_terms = []
 
-    for candidate in candidates:
-        if candidate in lookup:
-            matched_terms.append(candidate)
-            matched_entries.extend(lookup[candidate])
+    if use_spacy:
+        for token in spacy_tokens:
+            lemma = LEMMATIZER.lemmatize(token["lemma"])
+
+            if lemma not in lookup:
+                continue
+
+            allowed_pos = spacy_pos_to_roget_pos(token["pos"])
+
+            matched_any_entry = False
+
+            for entry in lookup[lemma]:
+                if not allowed_pos or entry["pos"] in allowed_pos:
+                    matched_entries.append(entry)
+                    matched_any_entry = True
+
+            if matched_any_entry:
+                matched_terms.append(lemma)
+
+        # Phrase matches stay POS-flexible for now
+        phrase_candidates = generate_ngrams(token_words, min_n=2, max_n=3)
+
+        for candidate in phrase_candidates:
+            if candidate in lookup:
+                matched_terms.append(candidate)
+                matched_entries.extend(lookup[candidate])
+
+    else:
+        for candidate in candidates:
+            if candidate in lookup:
+                matched_terms.append(candidate)
+                matched_entries.extend(lookup[candidate])
 
     deduped_matches = []
     seen = set()
@@ -160,7 +244,7 @@ def analyze_text(text, lookup):
         if entry.get("subsection")
     )
 
-    content_tokens = [token for token in tokens if token not in STOP_WORDS]
+    content_tokens = [token for token in token_words if token not in STOP_WORDS]
     matched_content_tokens = [token for token in content_tokens if token in lookup]
     
     token_coverage = (
@@ -169,14 +253,14 @@ def analyze_text(text, lookup):
     )
     
     unique_term_rate = (
-        len(set(matched_terms)) / len(tokens)
-        if tokens else 0
+        len(set(matched_terms)) / len(token_words)
+        if token_words else 0
     )
     
-    semantic_density = len(deduped_matches) / len(tokens) if tokens else 0
+    semantic_density = len(deduped_matches) / len(token_words) if token_words else 0
     
     return {
-        "total_tokens": len(tokens),
+        "total_tokens": len(token_words),
         "matched_terms": len(matched_terms),
         "unique_matched_terms": len(set(matched_terms)),
         "total_semantic_matches": len(deduped_matches),
@@ -258,16 +342,17 @@ def main():
     )
 
     parser.add_argument("filepath", help="Path to a .txt file")
+    parser.add_argument(
+    "--spacy",
+    action="store_true",
+    help="Use spaCy lemmatization and POS tagging for input text preprocessing.")
 
     args = parser.parse_args()
-
-    text = Path(args.filepath).read_text(encoding="utf-8")
-    text = clean_gutenberg_text(text)
 
     roget_terms = load_roget_terms()
     lookup = build_lookup(roget_terms)
 
-    results = analyze_text(text, lookup)
+    results = analyze_text(args.filepath, lookup, use_spacy=args.spacy)
     OUTPUT_PATH = Path("data/processed/analysis_results.json")
 
     with OUTPUT_PATH.open("w", encoding="utf-8") as f:
@@ -275,9 +360,6 @@ def main():
 
     print_results(results)
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-    with OUTPUT_PATH.open("w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2, ensure_ascii=False)
     
     print(f"\nSaved analysis results to {OUTPUT_PATH}")
 
