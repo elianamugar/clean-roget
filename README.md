@@ -293,6 +293,46 @@ http://localhost:8000
 ```
 
 ---
+# Higher-Precision spaCy Analysis
+
+The browser tools run entirely client-side for accessibility and free static hosting. For higher-precision local analysis, Clean Roget also supports a spaCy-powered command-line mode.
+
+This mode uses spaCy for:
+
+- tokenization
+- stopword filtering
+- lemmatization
+- contextual part-of-speech tagging
+
+This improves semantic precision by matching input-text lemmas and contextual POS tags against Roget semantic entries.
+
+## Install spaCy
+
+```bash
+pip install spacy
+python -m spacy download en_core_web_sm
+```
+
+## Run spaCy-powered analysis
+
+```bash
+python src/analyze.py sample_texts/pride_and_prejudice.txt --spacy
+```
+
+Example improvements include:
+
+- cleaner tokenization
+- lemma normalization
+- reduced POS ambiguity
+- more accurate semantic matching
+- improved semantic fingerprints
+- improved clustering precision
+
+## Why isn't spaCy used on the live site?
+
+The GitHub Pages version of Clean Roget is a static site and cannot run Python server-side. The browser tools therefore use lightweight client-side semantic matching.
+
+A future backend version may expose spaCy-powered analysis through a FastAPI service.
 
 # Limitations
 
