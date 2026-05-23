@@ -272,6 +272,11 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
+## Install for spaCy CLI mode
+```bash
+python -m spacy download en_core_web_sm
+```
+
 ## Run parsing pipeline
 
 ```bash
