@@ -220,6 +220,13 @@ Data processing:
 * JSON
 * CSV
 
+CLI / NLP:
+
+* Python
+* NLTK
+* spaCy
+* en_core_web_sm
+
 ---
 
 # Project Structure
@@ -244,7 +251,12 @@ clean-roget/
 ├── src/
 │   ├── parse.py
 │   ├── clean.py
-│   └── export.py
+│   ├── nlp.py
+│   ├── semantic_analysis.py
+│   ├── analyze.py
+│   ├── compare.py
+│   ├── corpus.py
+│   └── export.py  
 └── README.md
 ```
 
@@ -296,7 +308,56 @@ Then open:
 ```text
 http://localhost:8000
 ```
+---
+# CLI Analysis Tools
 
+Clean Roget includes higher-precision command-line tools that use the shared Python semantic analysis pipeline.
+
+The CLI tools can optionally use spaCy for:
+
+- tokenization
+- stopword filtering
+- lemmatization
+- contextual part-of-speech filtering
+
+Install spaCy:
+
+```bash
+pip install spacy
+python -m spacy download en_core_web_sm
+```
+
+## Analyze one text
+
+```bash
+python src/analyze.py sample_texts/pride_and_prejudice.txt --spacy
+```
+
+## Compare two texts
+
+```bash
+python src/compare.py \
+  sample_texts/pride_and_prejudice.txt \
+  sample_texts/crime_and_punishment.txt \
+  --spacy
+```
+
+This outputs semantic similarity scores, shared semantic heads, distinctive heads, and top heads for each text.
+
+## Compare two corpora
+
+```bash
+python src/corpus.py \
+  --a sample_texts/austen_corpus/*.txt \
+  --b sample_texts/dostoevsky_corpus/*.txt \
+  --label-a Austen \
+  --label-b Dostoevsky \
+  --spacy
+```
+
+This aggregates multiple files into author/corpus-level semantic profiles and compares them.
+
+The browser tools remain client-side for static hosting, while the CLI tools provide higher-precision local analysis.
 ---
 # Higher-Precision spaCy Analysis
 
@@ -370,6 +431,8 @@ Potential future improvements include:
 * embedding hybridization
 * semantic drift analysis
 * chapter-level semantic progression
+* distinctive corpus fingerprint visualization for CLI results
+* FastAPI backend for live spaCy-powered website analysis
 
 ---
 
